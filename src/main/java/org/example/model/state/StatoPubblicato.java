@@ -2,7 +2,7 @@ package org.example.model.state;
 
 import org.example.model.Prodotto;
 
-public class StatoPublicato implements StatoProdotto{
+public class StatoPubblicato implements StatoProdotto{
 
     @Override
     public void inviaInRevisione(Prodotto context){

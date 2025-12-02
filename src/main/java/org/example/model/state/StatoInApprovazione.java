@@ -9,7 +9,7 @@ public class StatoInApprovazione implements StatoProdotto {
     }
     @Override
     public void approva(Prodotto context) {
-        context.setStato(new StatoPublicato());
+        context.setStato(new StatoPubblicato());
     }
 
     @Override
