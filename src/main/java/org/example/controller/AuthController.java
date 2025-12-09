@@ -15,19 +15,21 @@ public class AuthController {
     }
 
     public boolean registrazione(Map<String, Object> dati) {
-        RuoloUtente ruolo = (RuoloUtente) dati.get("ruolo");
-        // 1. Creazione tramite Factory
+        RuoloUtente ruolo = RuoloUtente.valueOf((String) dati.get("ruolo")); // Conversione stringa -> Enum
         Utente nuovoUtente = utenteFactory.creaUtente(ruolo, dati);
-        // 2. Salvataggio (su interfaccia)
-        utenteRepo.salva(nuovoUtente);
+
+        // CORREZIONE: usa save() invece di salva()
+        utenteRepo.save(nuovoUtente);
         return true;
     }
 
     public Utente login(String email, String password) {
-        Utente u = utenteRepo.trovaPerEmail(email);
+        // CORREZIONE: usa findByEmail() che restituisce Optional
+        Utente u = utenteRepo.findByEmail(email).orElse(null);
+
         if (u != null && u.getPassword().equals(password)) {
             return u;
         }
-        return null; // O lancia eccezione
+        return null;
     }
 }
