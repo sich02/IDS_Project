@@ -1,20 +1,25 @@
 package org.example.model.state;
 
-import org.example.model.Prodotto;
+import org.example.model.Contenuto;
 
-public class StatoInApprovazione implements StatoProdotto {
+public class StatoInApprovazione implements StatoContenuto {
+
     @Override
-    public void inviaInRevisione(Prodotto context) {
-        throw new IllegalStateException("IL PRODOTTO E' GIA' IN ATTESA DI REVISIONE");
+    public void inviaInRevisione(Contenuto context) {
+        throw new IllegalStateException("Errore: Il contenuto è GIA' in attesa di revisione.");
     }
+
     @Override
-    public void approva(Prodotto context) {
+    public void approva(Contenuto context) {
+        // Transizione valida: In Approvazione -> Pubblicato
         context.setStato(new StatoPubblicato());
     }
 
     @Override
-    public void rifiuta(Prodotto context, String motivazione){
-        //transizione valida (RIFIUTO-> torna bozza)
+    public void rifiuta(Contenuto context, String motivazione) {
+        // Transizione valida: In Approvazione -> Bozza (con motivazione)
+        // Qui potresti loggare la motivazione o salvarla in un campo 'note' di Contenuto
+        System.out.println("Contenuto rifiutato per: " + motivazione);
         context.setStato(new StatoBozza());
     }
 

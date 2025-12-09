@@ -11,9 +11,11 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper=true)
 
 public class Acquirente extends Utente{
+    private String indirizzoSpedizione;
 
-    public Acquirente(String nome, String cognome, String email, String password){
+    public Acquirente(String nome, String cognome, String email, String password, String indirizzoSpedizione) {
         super(nome, cognome, email, password, RuoloUtente.ACQUIRENTE);
+        this.indirizzoSpedizione = indirizzoSpedizione;
     }
 
 }

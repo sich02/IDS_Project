@@ -1,13 +1,15 @@
 package org.example.repository;
 import org.example.model.Prodotto;
-import org.example.model.Produttore;
+import org.example.model.Venditore;
 import org.example.model.state.StatoProdotto;
-
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import java.util.List;
 
-public interface ProdottoRepository {
-    void salva(Prodotto p);
-    Prodotto trovaPerId(long id);
-    List<Prodotto> trovaPerStato(StatoProdotto s); // per Curatore
-    List<Prodotto> trovaPerProduttore(Produttore p); //per produttore
+@Repository
+
+public interface ProdottoRepository extends JpaRepository<Prodotto,Long> {
+
+    List<Prodotto> findByVenditore(Venditore venditore);
+    List<Prodotto> findByStatoProdotto(StatoProdotto statoProdotto);
 }

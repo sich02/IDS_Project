@@ -1,8 +1,15 @@
 package org.example.repository;
 
 import  org.example.model.Utente;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
-public interface UtenteRepository {
-    void salva(Utente utente);
-    Utente trovaPerEmail(String email);
+@Repository
+
+public interface UtenteRepository extends JpaRepository<Utente,Long> {
+
+    Optional<Utente> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }

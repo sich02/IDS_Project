@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@Data
-@NoArgsConstructor
+@Inheritance(strategy = InheritanceType.JOINED) // Crea tabelle separate collegate per ID
+@Data // Lombok: Genera Getter, Setter, toString, equals in automatico
+@NoArgsConstructor // Lombok: Genera costruttore vuoto obbligatorio per JPA
 public abstract class Utente {
 
     @Id
@@ -17,15 +17,14 @@ public abstract class Utente {
     private String nome;
     private String cognome;
 
-    @Column(unique = true) // La mail deve essere univoca nel DB
+    @Column(unique = true)
     private String email;
 
     private String password;
 
-    @Enumerated(EnumType.STRING) // Salva il ruolo come testo ("PRODUTTORE") invece di numero
+    @Enumerated(EnumType.STRING) 
     private RuoloUtente ruolo;
 
-    // Costruttore di utilità per creare oggetti velocemente nel codice
     public Utente(String nome, String cognome, String email, String password, RuoloUtente ruolo) {
         this.nome = nome;
         this.cognome = cognome;

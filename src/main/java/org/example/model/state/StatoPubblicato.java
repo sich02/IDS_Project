@@ -1,26 +1,28 @@
 package org.example.model.state;
 
-import org.example.model.Prodotto;
+import org.example.model.Contenuto;
 
-public class StatoPubblicato implements StatoProdotto{
+public class StatoPubblicato implements StatoContenuto {
 
     @Override
-    public void inviaInRevisione(Prodotto context){
-        throw new IllegalStateException("Il prodotto è già stato pubblicato");
+    public void inviaInRevisione(Contenuto context) {
+        throw new IllegalStateException("Errore: Il contenuto è già pubblicato.");
     }
 
     @Override
-    public void approva(Prodotto context){
-        throw new IllegalStateException("Il prodotto è già stato approvato");
+    public void approva(Contenuto context) {
+        throw new IllegalStateException("Errore: Il contenuto è già stato approvato.");
     }
 
     @Override
-    public void rifiuta(Prodotto context, String motivazione){
-        throw  new IllegalStateException("Impossibile rifiutare un prodotto già pubblicato");
+    public void rifiuta(Contenuto context, String motivazione) {
+        // Opzionale: permettere di ritirare un contenuto pubblicato?
+        // Per ora lo blocchiamo come da specifiche base.
+        throw new IllegalStateException("Errore: Impossibile rifiutare un contenuto già pubblicato. Va prima sospeso.");
     }
 
     @Override
-    public String toString(){
-        return "Pubblicato";
+    public String toString() {
+        return "PUBBLICATO";
     }
 }
