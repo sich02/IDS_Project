@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper=true)
-public class Curatore extends Utente{
-
-    public Curatore(String nome, String cognome, String email, String password){
-        super(nome, cognome, email, password, RuoloUtente.CURATORE);
+public class Animatore extends Utente{
+    public Animatore(String nome, String cognome, String email, String password){
+        super(nome, cognome, email, password, RuoloUtente.ANIMATORE);
     }
 }

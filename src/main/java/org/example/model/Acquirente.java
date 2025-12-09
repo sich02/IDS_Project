@@ -1,18 +1,19 @@
 package org.example.model;
 
+import jakarta.persistence.Entity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper=true)
+
 public class Acquirente extends Utente{
-    private String indirizzoSpedizione;
 
-    public Acquirente(){
-        super();
-        this.ruolo = RuoloUtente.ACQUIRENTE;
-    }
-
-    public Acquirente(String nome, String cognome, String email, String password, String indirizzoSpedizione){
+    public Acquirente(String nome, String cognome, String email, String password){
         super(nome, cognome, email, password, RuoloUtente.ACQUIRENTE);
-        this.indirizzoSpedizione = indirizzoSpedizione;
     }
 
-    public String getIndirizzoSpedizione() {return indirizzoSpedizione;}
-    public void setIndirizzoSpedizione(String indirizzoSpedizione) {this.indirizzoSpedizione = indirizzoSpedizione;}
 }
