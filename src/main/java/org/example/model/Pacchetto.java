@@ -12,7 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Pacchetto extends Prodotto {
-
     private double sconto;
 
     // Aggregazione: Un pacchetto contiene prodotti singoli
