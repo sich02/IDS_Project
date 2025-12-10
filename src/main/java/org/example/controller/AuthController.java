@@ -1,35 +1,48 @@
 package org.example.controller;
+
 import org.example.model.Utente;
 import org.example.model.RuoloUtente;
 import org.example.factory.UtenteFactory;
 import org.example.repository.UtenteRepository;
+import org.springframework.beans.factory.annotation.Autowired; // Import necessario
+import org.springframework.web.bind.annotation.*; // Import necessario
+import org.springframework.http.ResponseEntity;
+
 import java.util.Map;
-public class  AuthController {
+
+@RestController // Trasformiamolo in un vero Controller REST
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    @Autowired
     private UtenteRepository utenteRepo;
+
+    @Autowired
     private UtenteFactory utenteFactory;
 
-    // Dependency Injection (passiamo le istanze nel costruttore)
-    public AuthController(UtenteRepository utenteRepo) {
-        this.utenteRepo = utenteRepo;
-        this.utenteFactory = new UtenteFactory();
-    }
+    @PostMapping("/registrazione")
+    public ResponseEntity<String> registrazione(@RequestBody Map<String, Object> dati) {
+        RuoloUtente ruolo = RuoloUtente.valueOf((String) dati.get("ruolo"));
 
-    public boolean registrazione(Map<String, Object> dati) {
-        RuoloUtente ruolo = RuoloUtente.valueOf((String) dati.get("ruolo")); // Conversione stringa -> Enum
         Utente nuovoUtente = utenteFactory.creaUtente(ruolo, dati);
 
-        // CORREZIONE: usa save() invece di salva()
+        // CORREZIONE: usa save()
         utenteRepo.save(nuovoUtente);
-        return true;
+
+        return ResponseEntity.ok("Utente registrato con successo");
     }
 
-    public Utente login(String email, String password) {
-        // CORREZIONE: usa findByEmail() che restituisce Optional
+    @PostMapping("/login")
+    public ResponseEntity<Utente> login(@RequestBody Map<String, String> credenziali) {
+        String email = credenziali.get("email");
+        String password = credenziali.get("password");
+
+        // CORREZIONE: usa findByEmail() e gestisce l'Optional
         Utente u = utenteRepo.findByEmail(email).orElse(null);
 
         if (u != null && u.getPassword().equals(password)) {
-            return u;
+            return ResponseEntity.ok(u);
         }
-        return null;
+        return ResponseEntity.status(401).build(); // 401 Unauthorized se fallisce
     }
 }
