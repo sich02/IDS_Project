@@ -1,5 +1,6 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ public abstract class Contenuto {
     private String statoNome;
 
     @Transient
+    @JsonIgnore
     private StatoContenuto statoCorrente;
 
     public Contenuto(String nome, String descrizione) {
