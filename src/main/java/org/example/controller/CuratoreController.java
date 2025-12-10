@@ -2,46 +2,80 @@ package org.example.controller;
 
 import org.example.model.Prodotto;
 import org.example.repository.ProdottoRepository;
-import org.springframework.beans.factory.annotation.Autowired; // Mancava
-import org.springframework.http.ResponseEntity; // Mancava
-import org.springframework.web.bind.annotation.*; // Mancavano le annotazioni REST
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
-@RestController // Mancava
-@RequestMapping("/api/curatore") // Mancava
+@RestController
+@RequestMapping("/api/curatore")
 public class CuratoreController {
 
     @Autowired
     private ProdottoRepository prodottoRepo;
 
-    // Rimosso il costruttore manuale, usiamo @Autowired
-
+    /**
+     * Endpoint 1: DASHBOARD REVISIONI
+     * Restituisce al Frontend la lista di tutti i prodotti in attesa di validazione.
+     * URL: GET /api/curatore/revisioni
+     */
     @GetMapping("/revisioni")
     public ResponseEntity<List<Prodotto>> visualizzaCodaRevisioni() {
-        // CORREZIONE: Usa il metodo standard findByStatoNome con la stringa "IN_APPROVAZIONE"
-        return ResponseEntity.ok(prodottoRepo.findByStatoNome("IN_APPROVAZIONE"));
+        // Usa il metodo corretto del Repository (cerca per stringa)
+        List<Prodotto> inRevisione = prodottoRepo.findByStatoNome("IN_APPROVAZIONE");
+        return ResponseEntity.ok(inRevisione);
     }
 
-    @PutMapping("/approva/{id}") // Trasformato in Endpoint REST
+    /**
+     * Endpoint 2: APPROVAZIONE
+     * Il Curatore accetta il prodotto, che passa allo stato PUBBLICATO.
+     * URL: PUT /api/curatore/approva/{id}
+     */
+    @PutMapping("/approva/{id}")
     public ResponseEntity<String> approvaProdotto(@PathVariable Long id) {
         Prodotto prodotto = prodottoRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Prodotto non trovato"));
+                .orElseThrow(() -> new RuntimeException("Prodotto non trovato con ID: " + id));
 
-        prodotto.pubblica();
-        prodottoRepo.save(prodotto); // CORREZIONE: usa save()
+        try {
+            // 1. Logica di Business (Pattern State)
+            prodotto.pubblica();
 
-        return ResponseEntity.ok("Prodotto approvato.");
+            // 2. Persistenza (Salva il nuovo statoNome "PUBBLICATO" nel DB)
+            prodottoRepo.save(prodotto);
+
+            return ResponseEntity.ok("Prodotto approvato e pubblicato con successo.");
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body("Errore: " + e.getMessage());
+        }
     }
 
+    /**
+     * Endpoint 3: RIFIUTO
+     * Il Curatore rimanda il prodotto in BOZZA specificando un motivo.
+     * URL: PUT /api/curatore/rifiuta/{id}
+     * Body: "motivo": "Foto non conforme..."
+     */
     @PutMapping("/rifiuta/{id}")
-    public ResponseEntity<String> rifiutaProdotto(@PathVariable Long id, @RequestBody String motivo) {
+    public ResponseEntity<String> rifiutaProdotto(@PathVariable Long id, @RequestBody Map<String, String> body) {
         Prodotto prodotto = prodottoRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Prodotto non trovato"));
+                .orElseThrow(() -> new RuntimeException("Prodotto non trovato con ID: " + id));
 
-        prodotto.rifiuta(motivo);
-        prodottoRepo.save(prodotto); // CORREZIONE: usa save()
+        String motivazione = body.get("motivo");
 
-        return ResponseEntity.ok("Prodotto rifiutato.");
+        try {
+            // 1. Logica di Business (Pattern State)
+            prodotto.rifiuta(motivazione);
+
+            // 2. Persistenza (Salva il nuovo statoNome "BOZZA")
+            prodottoRepo.save(prodotto);
+
+            return ResponseEntity.ok("Prodotto rifiutato. Tornato in stato BOZZA.");
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body("Errore: " + e.getMessage());
+        }
     }
 }

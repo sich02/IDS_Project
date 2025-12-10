@@ -22,11 +22,15 @@ public class  AuthController {
 
     @PostMapping("/registrazione")
     public ResponseEntity<String> registrazione(@RequestBody Map<String, Object> dati) {
-        RuoloUtente ruolo = RuoloUtente.valueOf((String) dati.get("ruolo"));
 
+        String email = (String) dati.get("email");
+        if(utenteRepo.existsByEmail(email)){
+            return ResponseEntity.status(400).body("account già esistente");
+        }
+
+        RuoloUtente ruolo = RuoloUtente.valueOf((String) dati.get("ruolo"));
         Utente nuovoUtente = utenteFactory.creaUtente(ruolo, dati);
 
-        // CORREZIONE: usa save()
         utenteRepo.save(nuovoUtente);
 
         return ResponseEntity.ok("Utente registrato con successo");

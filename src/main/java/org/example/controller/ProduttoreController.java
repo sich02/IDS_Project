@@ -20,53 +20,68 @@ public class ProduttoreController {
     @Autowired
     private UtenteRepository utenteRepo;
 
-    // --- 1. CREAZIONE PRODOTTO (Crea un ProdottoSingolo) ---
+    /**
+     * 1. CREAZIONE PRODOTTO
+     * Il produttore crea un nuovo oggetto. Lo stato iniziale sarà "BOZZA" (automatico).
+     */
     @PostMapping("/crea-prodotto")
-    public ResponseEntity<Prodotto> creaProdotto(@RequestBody Map<String, Object> dati) {
+    public ResponseEntity<?> creaProdotto(@RequestBody Map<String, Object> dati) {
+        try {
+            // 1. Recupero il Produttore (convertendo l'ID da Integer/Long in sicurezza)
+            Long idProduttore = Long.valueOf(dati.get("idProduttore").toString());
 
-        // 1. Identifica il Produttore (che è un Venditore)
-        Long idProduttore = Long.parseLong(dati.get("idProduttore").toString());
-        Venditore produttore = (Venditore) utenteRepo.findById(idProduttore)
-                .orElseThrow(() -> new RuntimeException("Produttore non trovato"));
+            Venditore produttore = (Venditore) utenteRepo.findById(idProduttore)
+                    .orElseThrow(() -> new RuntimeException("Produttore non trovato"));
 
-        // 2. Estrai i dati dal JSON
-        String nome = (String) dati.get("nome");
-        String descrizione = (String) dati.get("descrizione");
-        double prezzo = Double.parseDouble(dati.get("prezzo").toString());
+            // 2. Estrazione dati
+            String nome = (String) dati.get("nome");
+            String descrizione = (String) dati.get("descrizione");
+            double prezzo = Double.valueOf(dati.get("prezzo").toString());
 
-        // 3. Istanzia la classe concreta ProdottoSingolo
-        // (Nota: lo stato iniziale sarà BOZZA automaticamente grazie al costruttore di Contenuto)
-        ProdottoSingolo nuovoProdotto = new ProdottoSingolo(nome, descrizione, prezzo, produttore);
+            // 3. Creazione (Stato -> BOZZA)
+            ProdottoSingolo nuovoProdotto = new ProdottoSingolo(nome, descrizione, prezzo, produttore);
 
-        // 4. Salva (Spring salverà nella tabella 'prodotto_singolo' e 'prodotto' e 'contenuto')
-        prodottoRepo.save(nuovoProdotto);
+            // 4. Salvataggio
+            prodottoRepo.save(nuovoProdotto);
 
-        return ResponseEntity.ok(nuovoProdotto);
+            return ResponseEntity.ok(nuovoProdotto);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Errore creazione: " + e.getMessage());
+        }
     }
 
-    // --- 2. VISUALIZZA I MIEI PRODOTTI ---
+    /**
+     * 2. VISUALIZZA CATALOGO PERSONALE
+     */
     @GetMapping("/i-miei-prodotti/{idProduttore}")
     public ResponseEntity<List<Prodotto>> getMieiProdotti(@PathVariable Long idProduttore) {
-
+        // Cerco il venditore per sicurezza
         Venditore produttore = (Venditore) utenteRepo.findById(idProduttore)
                 .orElseThrow(() -> new RuntimeException("Produttore non trovato"));
 
-        // Usa il metodo del repository che filtra per Venditore
+        // Uso il metodo del repo: findByVenditore
         return ResponseEntity.ok(prodottoRepo.findByVenditore(produttore));
     }
 
-    // --- 3. INVIA IN REVISIONE (Usa logica di Contenuto) ---
+    /**
+     * 3. PUBBLICAZIONE (Bozza -> In Approvazione)
+     * Il produttore decide che il prodotto è pronto e chiede al Curatore di controllarlo.
+     */
     @PutMapping("/pubblica/{idProdotto}")
     public ResponseEntity<String> richiediPubblicazione(@PathVariable Long idProdotto) {
+        try {
+            Prodotto prodotto = prodottoRepo.findById(idProdotto)
+                    .orElseThrow(() -> new RuntimeException("Prodotto non trovato"));
 
-        Prodotto prodotto = prodottoRepo.findById(idProdotto)
-                .orElseThrow(() -> new RuntimeException("Prodotto non trovato"));
+            // Cambio stato: BOZZA -> IN_APPROVAZIONE
+            prodotto.richiediApprovazione();
 
-        // Chiama il metodo ereditato da Contenuto -> Stato
-        prodotto.richiediApprovazione();
+            // Salvo il cambiamento
+            prodottoRepo.save(prodotto);
 
-        prodottoRepo.save(prodotto); // Salva il nuovo statoNome
-
-        return ResponseEntity.ok("Prodotto inviato al Curatore. Stato attuale: " + prodotto.getStatoNome());
+            return ResponseEntity.ok("Prodotto inviato al Curatore. Stato attuale: " + prodotto.getStatoNome());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
