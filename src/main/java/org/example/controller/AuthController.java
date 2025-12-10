@@ -4,7 +4,7 @@ import org.example.model.RuoloUtente;
 import org.example.factory.UtenteFactory;
 import org.example.repository.UtenteRepository;
 import java.util.Map;
-public class AuthController {
+public class  AuthController {
     private UtenteRepository utenteRepo;
     private UtenteFactory utenteFactory;
 
