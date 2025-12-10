@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RestController // Trasformiamolo in un vero Controller REST
 @RequestMapping("/api/auth")
-public class AuthController {
+public class  AuthController {
 
     @Autowired
     private UtenteRepository utenteRepo;
