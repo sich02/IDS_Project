@@ -21,37 +21,53 @@ public class ProduttoreController {
     private UtenteRepository utenteRepo;
 
     /**
-     * 1. CREAZIONE PRODOTTO
+     * CREAZIONE PRODOTTO
      * Il produttore crea un nuovo oggetto. Lo stato iniziale sarà "BOZZA" (automatico).
      */
     @PostMapping("/crea-prodotto")
     public ResponseEntity<?> creaProdotto(@RequestBody Map<String, Object> dati) {
         try {
-            // 1. Recupero il Produttore (convertendo l'ID da Integer/Long in sicurezza)
+            //Recupero il Produttore (convertendo l'ID da Integer/Long in sicurezza)
             Long idProduttore = Long.valueOf(dati.get("idProduttore").toString());
 
             Venditore produttore = (Venditore) utenteRepo.findById(idProduttore)
                     .orElseThrow(() -> new RuntimeException("Produttore non trovato"));
 
-            // 2. Estrazione dati
+            //Estrazione dati
             String nome = (String) dati.get("nome");
             String descrizione = (String) dati.get("descrizione");
             double prezzo = Double.valueOf(dati.get("prezzo").toString());
 
-            // 3. Creazione (Stato -> BOZZA)
+            //Creazione (Stato -> BOZZA)
             ProdottoSingolo nuovoProdotto = new ProdottoSingolo(nome, descrizione, prezzo, produttore);
 
-            // 4. Salvataggio
+            if(dati.containsKey("certificazioni")){
+                List<Map<String, String>> certsInput = (List<Map<String, String>>) dati.get("certificazioni");
+
+                for(Map<String, String> cMap: certsInput){
+                    TipoCertificazione tipo =  TipoCertificazione.valueOf(cMap.get("nome"));
+
+                    Certificazione cert = new Certificazione(
+                            tipo,
+                            cMap.get("enteRilascio"),
+                            cMap.get("descrizione")
+                    );
+                    nuovoProdotto.aggiungiCertificazione(cert);
+                }
+            }
+
             prodottoRepo.save(nuovoProdotto);
 
             return ResponseEntity.ok(nuovoProdotto);
-        } catch (Exception e) {
+        }catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Errore: Tipo certificazione non valido. Valori accettati: DOP, IGP, BIO, ecc.");
+        }catch (Exception e) {
             return ResponseEntity.badRequest().body("Errore creazione: " + e.getMessage());
         }
     }
 
     /**
-     * 2. VISUALIZZA CATALOGO PERSONALE
+     * VISUALIZZA CATALOGO PERSONALE
      */
     @GetMapping("/i-miei-prodotti/{idProduttore}")
     public ResponseEntity<List<Prodotto>> getMieiProdotti(@PathVariable Long idProduttore) {
@@ -64,7 +80,7 @@ public class ProduttoreController {
     }
 
     /**
-     * 3. PUBBLICAZIONE (Bozza -> In Approvazione)
+     * PUBBLICAZIONE (Bozza -> In Approvazione)
      * Il produttore decide che il prodotto è pronto e chiede al Curatore di controllarlo.
      */
     @PutMapping("/pubblica/{idProdotto}")

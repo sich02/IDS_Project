@@ -1,9 +1,15 @@
 package org.example.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -12,7 +18,13 @@ import lombok.NoArgsConstructor;
 public class ProdottoSingolo extends Prodotto {
     // Eventuali campi specifici (es. boolean isBiologico, dataScadenza)
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Certificazione> certificazioni = new ArrayList<>();
     public ProdottoSingolo(String nome, String descrizione, double prezzo, Venditore venditore) {
         super(nome, descrizione, prezzo, venditore);
+    }
+
+    public void aggiungiCertificazione(Certificazione c) {
+        this.certificazioni.add(c);
     }
 }
