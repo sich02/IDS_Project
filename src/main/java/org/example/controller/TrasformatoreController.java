@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/api/trasfomatore")
+@RequestMapping("/api/trasformatore")
 public class TrasformatoreController {
     @Autowired
     private TrasformazioneRepository trasformazioneRepo;
@@ -30,7 +30,7 @@ public class TrasformatoreController {
                     orElseThrow(()-> new RuntimeException("Trasformatore non trovato"));
 
             //input dei prodotti
-            List<Integer> idsInput = (List<Integer>) dati.get("idsProdottoInput");
+            List<Integer> idsInput = (List<Integer>) dati.get("idsProdottiInput");
             List<ProdottoSingolo> inputlist = new ArrayList<>();
             for(Integer id : idsInput){
                 Prodotto p = prodottoRepo.findById(Long.valueOf(id))
@@ -76,5 +76,31 @@ public class TrasformatoreController {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Errore: non trovato");
         }
+    }
+
+    ///manda in approvazione
+    @PutMapping("/pubblica/{idProdotto}")
+    public ResponseEntity<String> richiediPubblicazione(@PathVariable Long idProdotto) {
+        try{
+            Prodotto prodotto = prodottoRepo.findById(idProdotto).orElseThrow(() -> new RuntimeException("Prodotto non trovato"));
+
+            prodotto.richiediApprovazione();
+
+            prodottoRepo.save(prodotto);
+
+            return ResponseEntity.ok("Prodotto trasformato inviato al Curatore. Stato attuale: " + prodotto.getStatoNome());
+        }catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    //lista prodotti trasformati
+    @GetMapping("/i-miei-prodotti/{idTrasformatore}")
+    public ResponseEntity<List<Prodotto>> getMieiProdotti(@PathVariable Long idTrasformatore) {
+
+        Venditore trasformatore = (Venditore) utenteRepo.findById(idTrasformatore)
+                .orElseThrow(() -> new RuntimeException("Trasformatore non trovato"));
+
+        return ResponseEntity.ok(prodottoRepo.findByVenditore(trasformatore));
     }
 }
