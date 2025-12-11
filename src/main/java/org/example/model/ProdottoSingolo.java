@@ -16,10 +16,10 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class ProdottoSingolo extends Prodotto {
-    // Eventuali campi specifici (es. boolean isBiologico, dataScadenza)
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Certificazione> certificazioni = new ArrayList<>();
+
     public ProdottoSingolo(String nome, String descrizione, double prezzo, Venditore venditore) {
         super(nome, descrizione, prezzo, venditore);
     }

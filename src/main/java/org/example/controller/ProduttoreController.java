@@ -20,25 +20,21 @@ public class ProduttoreController {
     @Autowired
     private UtenteRepository utenteRepo;
 
-    /**
-     * CREAZIONE PRODOTTO
-     * Il produttore crea un nuovo oggetto. Lo stato iniziale sarà "BOZZA" (automatico).
-     */
+    //creo il prodotto
+
     @PostMapping("/crea-prodotto")
     public ResponseEntity<?> creaProdotto(@RequestBody Map<String, Object> dati) {
         try {
-            //Recupero il Produttore (convertendo l'ID da Integer/Long in sicurezza)
+
             Long idProduttore = Long.valueOf(dati.get("idProduttore").toString());
 
             Venditore produttore = (Venditore) utenteRepo.findById(idProduttore)
                     .orElseThrow(() -> new RuntimeException("Produttore non trovato"));
 
-            //Estrazione dati
             String nome = (String) dati.get("nome");
             String descrizione = (String) dati.get("descrizione");
             double prezzo = Double.valueOf(dati.get("prezzo").toString());
 
-            //Creazione (Stato -> BOZZA)
             ProdottoSingolo nuovoProdotto = new ProdottoSingolo(nome, descrizione, prezzo, produttore);
 
             if(dati.containsKey("certificazioni")){
@@ -66,33 +62,25 @@ public class ProduttoreController {
         }
     }
 
-    /**
-     * VISUALIZZA CATALOGO PERSONALE
-     */
+    //visualizzazione catalogo
     @GetMapping("/i-miei-prodotti/{idProduttore}")
     public ResponseEntity<List<Prodotto>> getMieiProdotti(@PathVariable Long idProduttore) {
-        // Cerco il venditore per sicurezza
+
         Venditore produttore = (Venditore) utenteRepo.findById(idProduttore)
                 .orElseThrow(() -> new RuntimeException("Produttore non trovato"));
 
-        // Uso il metodo del repo: findByVenditore
         return ResponseEntity.ok(prodottoRepo.findByVenditore(produttore));
     }
 
-    /**
-     * PUBBLICAZIONE (Bozza -> In Approvazione)
-     * Il produttore decide che il prodotto è pronto e chiede al Curatore di controllarlo.
-     */
+    //mando in approvazione
     @PutMapping("/pubblica/{idProdotto}")
     public ResponseEntity<String> richiediPubblicazione(@PathVariable Long idProdotto) {
         try {
             Prodotto prodotto = prodottoRepo.findById(idProdotto)
                     .orElseThrow(() -> new RuntimeException("Prodotto non trovato"));
 
-            // Cambio stato: BOZZA -> IN_APPROVAZIONE
             prodotto.richiediApprovazione();
 
-            // Salvo il cambiamento
             prodottoRepo.save(prodotto);
 
             return ResponseEntity.ok("Prodotto inviato al Curatore. Stato attuale: " + prodotto.getStatoNome());
