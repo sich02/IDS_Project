@@ -22,7 +22,7 @@ public class AcquirenteController {
     @Autowired private EventoRepository eventoRepo;
     @Autowired private PrenotazioneRepository prenotazioneRepo;
 
-    // --- CARRELLO ---
+    // --- CARRELLO
 
     @PostMapping("/carrello/aggiungi")
     @Transactional
