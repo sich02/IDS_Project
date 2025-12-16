@@ -78,7 +78,7 @@ public class TrasformatoreController {
         }
     }
 
-    ///manda in approvazione
+    //manda in approvazione
     @PutMapping("/pubblica/{idProdotto}")
     public ResponseEntity<String> richiediPubblicazione(@PathVariable Long idProdotto) {
         try{
