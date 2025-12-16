@@ -1,9 +1,7 @@
 package org.example.controller;
 
 import org.example.model.Utente;
-import org.example.model.RuoloUtente;
-import org.example.factory.UtenteFactory;
-import org.example.repository.UtenteRepository;
+import org.example.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
@@ -15,39 +13,35 @@ import java.util.Map;
 public class  AuthController {
 
     @Autowired
-    private UtenteRepository utenteRepo;
+    private AuthService authService;
 
-    @Autowired
-    private UtenteFactory utenteFactory;
 
+    //REGISTRAZIONE
     @PostMapping("/registrazione")
     public ResponseEntity<String> registrazione(@RequestBody Map<String, Object> dati) {
 
-        //Controllo per vedere se esiste già un account con quella mail
-        String email = (String) dati.get("email");
-        if(utenteRepo.existsByEmail(email)){
-            return ResponseEntity.status(400).body("account già esistente");
+        try{
+            authService.registraUtente(dati);
+            return ResponseEntity.ok("Registrazione avvenuta con successo");
+        }catch(IllegalArgumentException e){
+            return ResponseEntity.badRequest().body("Errore registrazione: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Errore generico: " + e.getMessage());
         }
-
-        RuoloUtente ruolo = RuoloUtente.valueOf((String) dati.get("ruolo"));
-        Utente nuovoUtente = utenteFactory.creaUtente(ruolo, dati);
-
-        utenteRepo.save(nuovoUtente);
-
-        return ResponseEntity.ok("Utente registrato con successo");
     }
 
+    //LOGIN
     @PostMapping("/login")
-    public ResponseEntity<Utente> login(@RequestBody Map<String, String> credenziali) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credenziali) {
         String email = credenziali.get("email");
         String password = credenziali.get("password");
 
 
-        Utente u = utenteRepo.findByEmail(email).orElse(null);
+        Utente utente = authService.login(email, password);
 
-        if (u != null && u.getPassword().equals(password)) {
-            return ResponseEntity.ok(u);
+        if (utente != null) {
+            return ResponseEntity.ok(utente);
         }
-        return ResponseEntity.status(401).build();
+        return ResponseEntity.status(401).body("Credenziale non valide");
     }
 }
