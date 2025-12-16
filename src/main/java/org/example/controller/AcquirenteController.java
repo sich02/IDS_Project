@@ -1,143 +1,109 @@
 package org.example.controller;
 
-import org.example.model.*;
-import org.example.repository.*;
+import org.example.model.Carrello;
+import org.example.model.Prodotto;
+import org.example.model.Ordine;
+import org.example.model.Evento;
+import org.example.service.AcquirenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.transaction.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/acquirente")
 public class AcquirenteController {
 
-    @Autowired private ProdottoRepository prodottoRepo;
-    @Autowired private UtenteRepository utenteRepo;
-    @Autowired private CarrelloRepository carrelloRepo;
-    @Autowired private OrdineRepository ordineRepo;
-    @Autowired private EventoRepository eventoRepo;
-    @Autowired private PrenotazioneRepository prenotazioneRepo;
+    @Autowired
+    private AcquirenteService acquirenteService;
 
-    // --- CARRELLO
+    //visualizza il catalogo
+    @GetMapping("/catalogo")
+    public ResponseEntity<List<Prodotto>> visualizzaCatalogo() {
+        return ResponseEntity.ok(acquirenteService.getCatalogoPubblico());
+    }
 
+    //visualizza la lista degli eventi
+    @GetMapping("/eventi")
+    public ResponseEntity<List<Evento>> visualizzaEventi() {
+        return ResponseEntity.ok(acquirenteService.getEventiDisponibili());
+    }
+
+    //visualizza il carrello
+    @GetMapping("/carrello/{idAcquirente}")
+    public ResponseEntity<?> visualizzaCarrello(@PathVariable Long idAcquirente) {
+        try {
+            Carrello carrello = acquirenteService.getCarrello(idAcquirente);
+            return ResponseEntity.ok(carrello);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    //aggiungi al carrello
     @PostMapping("/carrello/aggiungi")
-    @Transactional
     public ResponseEntity<String> aggiungiAlCarrello(@RequestParam Long idAcquirente, @RequestParam Long idProdotto) {
-        Acquirente acquirente = getAcquirente(idAcquirente);
-        if (acquirente == null) return ResponseEntity.badRequest().body("Acquirente non trovato.");
-
-        Prodotto prodotto = prodottoRepo.findById(idProdotto).orElse(null);
-        if (prodotto == null || !"PUBBLICATO".equals(prodotto.getStatoNome())) {
-            return ResponseEntity.badRequest().body("Prodotto non disponibile.");
+        try{
+            acquirenteService.aggiungiAlCarrello(idAcquirente,idProdotto);
+            return ResponseEntity.ok("Prodotto aggiunto al carrello");
+        }catch (Exception e){
+            return  ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        // Recupera o crea il carrello
-        Carrello carrello = carrelloRepo.findByAcquirente(acquirente)
-                .orElse(new Carrello(acquirente));
-
-        carrello.getProdotti().add(prodotto);
-        carrelloRepo.save(carrello);
-
-        return ResponseEntity.ok("Prodotto aggiunto al carrello: " + prodotto.getNome());
     }
 
+    //rimuovi dal carrello
     @DeleteMapping("/carrello/rimuovi")
-    @Transactional
     public ResponseEntity<String> rimuoviDalCarrello(@RequestParam Long idAcquirente, @RequestParam Long idProdotto) {
-        Acquirente acquirente = getAcquirente(idAcquirente);
-        if (acquirente == null) return ResponseEntity.badRequest().body("Acquirente non trovato.");
-
-        Carrello carrello = carrelloRepo.findByAcquirente(acquirente).orElse(null);
-        if (carrello == null || carrello.getProdotti().isEmpty()) {
-            return ResponseEntity.badRequest().body("Il carrello è vuoto.");
-        }
-
-        // Rimuove la prima occorrenza del prodotto
-        boolean rimosso = carrello.getProdotti().removeIf(p -> p.getId().equals(idProdotto));
-
-        if (rimosso) {
-            carrelloRepo.save(carrello);
-            return ResponseEntity.ok("Prodotto rimosso dal carrello.");
-        } else {
-            return ResponseEntity.badRequest().body("Prodotto non presente nel carrello.");
+        try{
+            acquirenteService.rimuoviDalCarrello(idAcquirente, idProdotto);
+            return ResponseEntity.ok("Prodotto rimosso dal carrello");
+        }catch (Exception e){
+            return  ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // --- ORDINI ---
-
+    //effettua ordine
     @PostMapping("/ordine/effettua")
-    @Transactional
     public ResponseEntity<String> effettuaOrdine(@RequestParam Long idAcquirente) {
-        Acquirente acquirente = getAcquirente(idAcquirente);
-        if (acquirente == null) return ResponseEntity.badRequest().body("Acquirente non trovato.");
-
-        Carrello carrello = carrelloRepo.findByAcquirente(acquirente).orElse(null);
-        if (carrello == null || carrello.getProdotti().isEmpty()) {
-            return ResponseEntity.badRequest().body("Impossibile ordinare: il carrello è vuoto.");
+        try{
+            Ordine ordine = acquirenteService.effettuaOrdine(idAcquirente);
+            return ResponseEntity.ok("Ordine effettuato! ID: " + ordine.getId() + " - Totale: " + ordine.getTotale() + "€");
+        }catch (Exception e){
+            return  ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        // Calcolo totale
-        double totale = carrello.getProdotti().stream().mapToDouble(Prodotto::getPrezzo).sum();
-
-        // Crea l'ordine (copiando la lista dei prodotti)
-        Ordine ordine = new Ordine(acquirente, new ArrayList<>(carrello.getProdotti()), totale);
-        ordineRepo.save(ordine);
-
-        // Svuota il carrello
-        carrello.getProdotti().clear();
-        carrelloRepo.save(carrello);
-
-        return ResponseEntity.ok("Ordine effettuato con successo! ID Ordine: " + ordine.getId() + " - Totale: " + totale + "€");
     }
 
+    //annulla ordine
     @PutMapping("/ordine/annulla/{idOrdine}")
     public ResponseEntity<String> annullaOrdine(@PathVariable Long idOrdine, @RequestParam Long idAcquirente) {
-        Ordine ordine = ordineRepo.findById(idOrdine).orElse(null);
-        if (ordine == null) return ResponseEntity.badRequest().body("Ordine non trovato.");
-
-        // Controllo che l'ordine appartenga all'utente e sia annullabile
-        if (!ordine.getAcquirente().getId().equals(idAcquirente)) {
-            return ResponseEntity.status(403).body("Non sei autorizzato ad annullare questo ordine.");
-        }
-
-        if (!"CREATO".equals(ordine.getStato())) {
-            return ResponseEntity.badRequest().body("Impossibile annullare l'ordine. Stato attuale: " + ordine.getStato());
-        }
-
-        ordine.setStato("ANNULLATO");
-        ordineRepo.save(ordine);
-
-        return ResponseEntity.ok("Ordine annullato con successo.");
+       try{
+           acquirenteService.annullaOrdine(idOrdine, idAcquirente);
+           return ResponseEntity.ok("Ordine annullato");
+       }catch (Exception e){
+           return  ResponseEntity.badRequest().body(e.getMessage());
+       }
     }
 
-    // --- EVENTI ---
-
+    //prenota evento
     @PostMapping("/evento/prenota")
     public ResponseEntity<String> prenotaEvento(@RequestParam Long idAcquirente, @RequestParam Long idEvento) {
-        Acquirente acquirente = getAcquirente(idAcquirente);
-        if (acquirente == null) return ResponseEntity.badRequest().body("Acquirente non trovato.");
-
-        Evento evento = eventoRepo.findById(idEvento).orElse(null);
-        if (evento == null || !"PUBBLICATO".equals(evento.getStatoNome())) {
-            return ResponseEntity.badRequest().body("Evento non disponibile.");
+        try{
+            acquirenteService.prenotaEvento(idAcquirente, idEvento);
+            return ResponseEntity.ok("Prenotazione confermata");
+        } catch (Exception e) {
+            return  ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        // Crea prenotazione
-        Prenotazione prenotazione = new Prenotazione(acquirente, evento);
-        prenotazioneRepo.save(prenotazione);
-
-        return ResponseEntity.ok("Prenotazione confermata per l'evento: " + evento.getNome());
     }
 
-    // --- Helper ---
-    private Acquirente getAcquirente(Long id) {
-        return utenteRepo.findById(id)
-                .filter(u -> u instanceof Acquirente)
-                .map(u -> (Acquirente) u)
-                .orElse(null);
+    //annulla la prenotazione all'evento
+    @DeleteMapping
+    public ResponseEntity<String> annullaPrenotazione(@PathVariable Long idPrenotazione, @RequestParam Long idAcquirente) {
+        try{
+            acquirenteService.annullaPrenotazione(idPrenotazione, idAcquirente);
+            return ResponseEntity.ok("Prenotazione annullata");
+        }catch (Exception e){
+            return  ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

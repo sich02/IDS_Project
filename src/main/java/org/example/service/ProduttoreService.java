@@ -23,7 +23,7 @@ public class ProduttoreService {
         return prodottoRepo.save(p);
     }
 
-    // Crea un pacchetto (COMPOSITE PATTERN: Aggregazione)
+    // Crea un pacchetto
     @Transactional
     public Pacchetto creaPacchetto(Long idProduttore, String nome, String descrizione, List<Long> idsProdottiDaIncludere) {
         Produttore produttore = (Produttore) utenteRepo.findById(idProduttore)
