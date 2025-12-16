@@ -24,11 +24,7 @@ public class AcquirenteController {
         return ResponseEntity.ok(acquirenteService.getCatalogoPubblico());
     }
 
-    //visualizza la lista degli eventi
-    @GetMapping("/eventi")
-    public ResponseEntity<List<Evento>> visualizzaEventi() {
-        return ResponseEntity.ok(acquirenteService.getEventiDisponibili());
-    }
+    //------GESTIONE CARRELLO------
 
     //visualizza il carrello
     @GetMapping("/carrello/{idAcquirente}")
@@ -63,6 +59,8 @@ public class AcquirenteController {
         }
     }
 
+    //------GESTIONE ORDINE------
+
     //effettua ordine
     @PostMapping("/ordine/effettua")
     public ResponseEntity<String> effettuaOrdine(@RequestParam Long idAcquirente) {
@@ -83,6 +81,14 @@ public class AcquirenteController {
        }catch (Exception e){
            return  ResponseEntity.badRequest().body(e.getMessage());
        }
+    }
+
+    //------GESTIONE EVENTI LATO ACQUIRENTE------
+
+    //visualizza la lista degli eventi
+    @GetMapping("/eventi")
+    public ResponseEntity<List<Evento>> visualizzaEventi() {
+        return ResponseEntity.ok(acquirenteService.getEventiDisponibili());
     }
 
     //prenota evento

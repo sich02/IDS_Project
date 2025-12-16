@@ -1,6 +1,7 @@
 package org.example.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -16,11 +17,16 @@ public class Evento extends Contenuto {
     private int maxPartecipanti;
     private double prezzoBiglietto;
 
-    public Evento(String nome, String descrizione, LocalDateTime dataEvento, String luogo, int maxPartecipanti, double prezzoBiglietto) {
+    @ManyToOne
+    private Animatore organizzatore;
+
+    public Evento(String nome, String descrizione, LocalDateTime dataEvento, String luogo,
+                  int maxPartecipanti, double prezzoBiglietto, Animatore organizzatore) {
         super(nome, descrizione);
         this.dataEvento = dataEvento;
         this.luogo = luogo;
         this.maxPartecipanti = maxPartecipanti;
         this.prezzoBiglietto = prezzoBiglietto;
+        this.organizzatore = organizzatore;
     }
 }
