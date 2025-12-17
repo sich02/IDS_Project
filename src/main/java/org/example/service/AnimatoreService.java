@@ -19,6 +19,8 @@ public class AnimatoreService {
     EventoRepository eventoRepo;
     @Autowired
     UtenteRepository utenteRepo;
+    @Autowired private
+    PrenotazioneRepository prenotazioneRepo;
 
     //crea evento
     @Transactional
@@ -64,4 +66,15 @@ public class AnimatoreService {
                 .orElseThrow(()-> new RuntimeException("Evento non trovato"));
         return invitoRepo.findByEvento(evento);
     }
+
+    //visualizza la lista degli acquirenti che partecipano all'evento
+    public List<Acquirente> getPartecipanti(Long idEvento){
+        Evento evento = eventoRepo.findById(idEvento).orElseThrow(()
+                -> new RuntimeException("Evento non trovato"));
+
+        return prenotazioneRepo.findByEvento(evento).stream()
+                .map(Prenotazione :: getAcquirente)
+                .toList();
+    }
+
 }

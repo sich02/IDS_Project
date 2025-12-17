@@ -1,9 +1,11 @@
 package org.example.controller;
 
 
+import org.example.dto.response.InvitoResponse;
 import org.example.dto.response.ProdottoResponse;
 import org.example.dto.request.CreaProcessoRequest;
 import org.example.service.TrasformazioneService;
+import org.example.service.VenditoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,8 @@ import java.util.List;
 public class TrasformatoreController {
     @Autowired
     private TrasformazioneService trasformazioneService;
+    @Autowired
+    private VenditoreService venditoreService;
 
     @PostMapping("/crea-processo")
     public ResponseEntity<?> creaProcesso(@RequestBody CreaProcessoRequest request) {
@@ -45,6 +49,30 @@ public class TrasformatoreController {
             return ResponseEntity.ok(lista.stream().map(ProdottoResponse :: fromEntity).toList());
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    //------GESTIONE INVITI RICEVUTI------
+
+    //visualizzazione degli inviti ricevuti
+    @GetMapping("/i-miei-inviti/{idTrasformatore}")
+    public ResponseEntity<List<InvitoResponse>> getMieiInviti(@PathVariable Long idTrasformatore) {
+        try{
+            var inviti = venditoreService.getMieiInviti(idTrasformatore);
+            return ResponseEntity.ok(inviti.stream().map(InvitoResponse::fromEntity).toList());
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    //accetta o rifiuta un invito a un evento
+    @PutMapping("/inviti/gestisci/{idInvito}")
+    public ResponseEntity<String> gestisciInviti(@PathVariable Long idInvito, @RequestParam boolean accetta) {
+        try{
+            venditoreService.gestisciInvito(idInvito, accetta);
+            return ResponseEntity.ok(accetta ? "Invito accettato" : "Invito rifiutato");
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

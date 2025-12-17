@@ -61,4 +61,19 @@ public class AnimatoreController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    //visualizza la lista degli acquirenti che partecipano all'evento
+    @GetMapping("/eventi/{idEvento}/partecipanti")
+    public ResponseEntity<List<org.example.dto.response.PartecipanteResponse>> getPartecipanti(@PathVariable Long idEvento){
+        try{
+            var acquirenti = animatoreService.getPartecipanti(idEvento);
+            var response = acquirenti.stream()
+                    .map(org.example.dto.response.PartecipanteResponse::fromEntity)
+                    .toList();
+            return ResponseEntity.ok(response);
+        }catch(Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }
