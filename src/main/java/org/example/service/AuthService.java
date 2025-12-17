@@ -27,6 +27,7 @@ public class AuthService {
         return utenteRepo.save(nuovoUtente);
     }
 
+    //login
     public Utente login(LoginRequest request) {
         Utente u = utenteRepo.findByEmail(request.email()).orElse(null);
         if (u != null && u.getPassword().equals(request.password())) {

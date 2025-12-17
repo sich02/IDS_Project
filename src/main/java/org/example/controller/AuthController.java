@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import jakarta.validation.Valid;
 import org.example.dto.request.LoginRequest;
 import org.example.dto.request.RegistrazioneRequest;
 import org.example.dto.response.UtenteResponse;
@@ -18,7 +19,7 @@ public class  AuthController {
 
     //REGISTRAZIONE
     @PostMapping("/registrazione")
-    public ResponseEntity<String> registrazione(@RequestBody RegistrazioneRequest request) {
+    public ResponseEntity<String> registrazione(@Valid @RequestBody RegistrazioneRequest request) {
         try{
             authService.registraUtente(request);
             return ResponseEntity.ok("Registrazione avvenuta con successo");
@@ -29,7 +30,7 @@ public class  AuthController {
 
     //LOGIN
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         var utente = authService.login(request);
         if (utente != null) {
             return ResponseEntity.ok(UtenteResponse.fromEntity(utente));
