@@ -1,6 +1,7 @@
 package org.example.service;
 
 import jakarta.transaction.Transactional;
+import org.example.dto.request.CreaEventoRequest;
 import org.example.model.*;
 import org.example.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class AnimatoreService {
@@ -22,20 +22,13 @@ public class AnimatoreService {
 
     //crea evento
     @Transactional
-    public Evento creaEvento(Map<String, Object> dati){
-        Long idAnimatore = Long.valueOf(dati.get("idAnimatore").toString());
-        Animatore animatore = (Animatore) utenteRepo.findById(idAnimatore)
+    public Evento creaEvento(CreaEventoRequest request) {
+        Animatore animatore = (Animatore) utenteRepo.findById(request.idAnimatore())
                 .orElseThrow(()-> new RuntimeException("Animatore non trovato"));
 
-        String nome = String.valueOf(dati.get("nome"));
-        String descrizione = String.valueOf(dati.get("descrizione"));
-        String luogo = String.valueOf(dati.get("luogo"));
-        int maxPartecipanti = Integer.parseInt(dati.get("maxPartecipanti").toString());
-        double prezzo = Double.parseDouble(dati.get("prezzo").toString());
-
-        LocalDateTime dataEvento =  LocalDateTime.parse(String.valueOf(dati.get("dataEvento")),
-                                                        DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        Evento evento = new Evento(nome, descrizione, dataEvento, luogo, maxPartecipanti, prezzo, animatore);
+        LocalDateTime dataEvento =  LocalDateTime.parse(request.dataEvento(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        Evento evento = new Evento(request.nome(), request.descrizione(), dataEvento,
+                                   request.luogo(), request.maxPartecipanti(), request.prezzoBiglietto(), animatore);
         return eventoRepo.save(evento);
     }
 

@@ -1,10 +1,14 @@
 package org.example.service;
 
+import jakarta.transaction.Transactional;
+import org.example.dto.request.CertificazioneRequest;
+import org.example.dto.request.CreaProdottoRequest;
 import org.example.model.*;
-import org.example.repository.*;
+import org.example.repository.ProdottoRepository;
+import org.example.repository.UtenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
+
 import java.util.List;
 
 @Service
@@ -15,11 +19,18 @@ public class ProduttoreService {
 
     // Crea un prodotto singolo
     @Transactional
-    public ProdottoSingolo creaProdottoSingolo(Long idProduttore, String nome, String descrizione, double prezzo) {
-        Produttore produttore = (Produttore) utenteRepo.findById(idProduttore)
+    public ProdottoSingolo creaProdotto(CreaProdottoRequest request) {
+        Produttore produttore = (Produttore) utenteRepo.findById(request.idProduttore())
                 .orElseThrow(() -> new RuntimeException("Produttore non trovato"));
 
-        ProdottoSingolo p = new ProdottoSingolo(nome, descrizione, prezzo, produttore);
+        ProdottoSingolo p = new ProdottoSingolo(request.nome(), request.descrizione(), request.prezzo(),  produttore);
+
+        if(request.certificazioni() !=null){
+            for(CertificazioneRequest cReq : request.certificazioni()){
+                TipoCertificazione tipo = TipoCertificazione.valueOf(cReq.nome());
+                p.aggiungiCertificazione(new Certificazione(tipo, cReq.enteRilascio(), cReq.descrizione()));
+            }
+        }
         return prodottoRepo.save(p);
     }
 
@@ -31,20 +42,23 @@ public class ProduttoreService {
 
         Pacchetto pacchetto = new Pacchetto(nome, descrizione, 0.0, produttore); // Il prezzo sarà calcolato o settato
 
-        // Recupera i prodotti figli e li aggiunge al pacchetto
         List<Prodotto> prodotti = prodottoRepo.findAllById(idsProdottiDaIncludere);
         if(prodotti.isEmpty()) throw new RuntimeException("Un pacchetto deve contenere almeno un prodotto");
 
         pacchetto.setProdotti(prodotti);
-
-        // Opzionale: Se il Composite calcola il prezzo automatico, non serve settarlo.
-        // Se invece è un prezzo scontato fisso, lo passi nel costruttore.
-
         return prodottoRepo.save(pacchetto);
     }
 
+    //visualizza i prodotti
     public List<Prodotto> getIMieiProdotti(Long idProduttore) {
         Produttore p = (Produttore) utenteRepo.findById(idProduttore).orElseThrow();
         return prodottoRepo.findByVenditore(p);
+    }
+
+    //richiedi la pubblicazione
+    public void richiediPubblicazione(Long id){
+        Prodotto p = prodottoRepo.findById(id).orElseThrow();
+        p.richiediApprovazione();
+        prodottoRepo.save(p);
     }
 }

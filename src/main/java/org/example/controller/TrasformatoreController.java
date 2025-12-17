@@ -1,13 +1,13 @@
 package org.example.controller;
 
 import org.example.model.Prodotto;
+import org.example.dto.request.CreaProcessoRequest;
 import org.example.service.TrasformazioneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/trasformatore")
@@ -16,10 +16,10 @@ public class TrasformatoreController {
     private TrasformazioneService trasformazioneService;
 
     @PostMapping("/crea-processo")
-    public ResponseEntity<?> creaProcesso(@RequestBody Map<String, Object> dati) {
+    public ResponseEntity<?> creaProcesso(@RequestBody CreaProcessoRequest request) {
         try{
-            Prodotto p = trasformazioneService.creaProcessoTrasformazione(dati);
-            return ResponseEntity.ok("Trasformazione completata. Nuovo prodotto creato: " +p.getNome());
+            var prodotto = trasformazioneService.creaProcessoTrasformazione(request);
+            return ResponseEntity.ok("Trasformazione completata. Nuovo prodotto creato: " +prodotto.getNome());
         }catch (Exception e){
             return ResponseEntity.badRequest().body("Errore: "+e.getMessage());
         }
@@ -39,11 +39,10 @@ public class TrasformatoreController {
     //lista prodotti trasformati
     @GetMapping("/i-miei-prodotti/{idTrasformatore}")
     public ResponseEntity<List<Prodotto>> getMieiProdotti(@PathVariable Long idTrasformatore) {
-        try{
+        try {
             return ResponseEntity.ok(trasformazioneService.getProdottiTrasformatore(idTrasformatore));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
-
     }
 }

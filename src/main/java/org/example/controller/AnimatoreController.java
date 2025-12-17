@@ -1,15 +1,15 @@
 package org.example.controller;
 
-import org.example.model.Evento;
+import org.example.dto.request.CreaEventoRequest;
 import org.example.model.Invito;
 import org.example.service.AnimatoreService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
+
+
 
 @RestController
 @RequestMapping("/api/animatore")
@@ -19,10 +19,9 @@ public class AnimatoreController {
 
     //creo l'evento
     @PostMapping("/crea-evento")
-    public ResponseEntity<?> creaEvento(@RequestBody Map<String,Object> dati){
+    public ResponseEntity<?> creaEvento(@RequestBody CreaEventoRequest request) {
         try{
-            Evento evento = animatoreService.creaEvento(dati);
-            return ResponseEntity.ok(evento);
+            return ResponseEntity.ok(animatoreService.creaEvento(request));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Errore nella crazione dell'evento"+e.getMessage());
         }
@@ -51,9 +50,10 @@ public class AnimatoreController {
     }
 
     //vedi lista inviti
-    @GetMapping("/lista-inviti/{idVenditore}")
-    public ResponseEntity<?> getInviti(@PathVariable Long idEvento){
-        try{
+    @GetMapping("/inviti/{idEvento}")
+    public ResponseEntity<?> getInviti(@PathVariable Long idEvento) {
+        try {
+            // Ora List viene riconosciuto correttamente come java.util.List
             List<Invito> inviti = animatoreService.getInvitiEvento(idEvento);
             return ResponseEntity.ok(inviti);
         } catch (Exception e) {

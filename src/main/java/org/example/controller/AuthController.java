@@ -1,10 +1,11 @@
 package org.example.controller;
 
-import org.example.model.Utente;
+import org.example.dto.request.LoginRequest;
+import org.example.dto.request.RegistrazioneRequest;
 import org.example.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -18,10 +19,9 @@ public class  AuthController {
 
     //REGISTRAZIONE
     @PostMapping("/registrazione")
-    public ResponseEntity<String> registrazione(@RequestBody Map<String, Object> dati) {
-
+    public ResponseEntity<String> registrazione(@RequestBody RegistrazioneRequest request) {
         try{
-            authService.registraUtente(dati);
+            authService.registraUtente(request);
             return ResponseEntity.ok("Registrazione avvenuta con successo");
         }catch(IllegalArgumentException e){
             return ResponseEntity.badRequest().body("Errore registrazione: " + e.getMessage());
@@ -32,13 +32,8 @@ public class  AuthController {
 
     //LOGIN
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credenziali) {
-        String email = credenziali.get("email");
-        String password = credenziali.get("password");
-
-
-        Utente utente = authService.login(email, password);
-
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        var utente = authService.login(request);
         if (utente != null) {
             return ResponseEntity.ok(utente);
         }
