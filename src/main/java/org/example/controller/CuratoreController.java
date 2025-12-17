@@ -1,6 +1,6 @@
 package org.example.controller;
 
-import org.example.model.Prodotto;
+import org.example.dto.response.ProdottoResponse;
 import org.example.service.CuratoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +18,9 @@ public class CuratoreController {
 
     //lista dei prodotti in revisione
     @GetMapping("/revisioni")
-    public ResponseEntity<List<Prodotto>> visualizzaCodaRevisioni() {
-        return ResponseEntity.ok(curatoreService.getProdottiInRevisione());
+    public ResponseEntity<List<ProdottoResponse>> visualizzaCodaRevisioni() {
+        var prodotti = curatoreService.getProdottiInRevisione();
+        return ResponseEntity.ok(prodotti.stream().map(ProdottoResponse::fromEntity).toList());
     }
 
     //approvazione

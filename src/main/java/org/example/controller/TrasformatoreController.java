@@ -1,6 +1,7 @@
 package org.example.controller;
 
-import org.example.model.Prodotto;
+
+import org.example.dto.response.ProdottoResponse;
 import org.example.dto.request.CreaProcessoRequest;
 import org.example.service.TrasformazioneService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class TrasformatoreController {
     public ResponseEntity<String> richiediPubblicazione(@PathVariable Long idProdotto) {
         try{
             trasformazioneService.richiediPubblicazione(idProdotto);
-            return ResponseEntity.ok("Prodotto inviato al Curatore");
+            return ResponseEntity.ok("Prodotto inviato al Curatore per la revisione");
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -38,9 +39,10 @@ public class TrasformatoreController {
 
     //lista prodotti trasformati
     @GetMapping("/i-miei-prodotti/{idTrasformatore}")
-    public ResponseEntity<List<Prodotto>> getMieiProdotti(@PathVariable Long idTrasformatore) {
+    public ResponseEntity<List<ProdottoResponse>> getMieiProdotti(@PathVariable Long idTrasformatore) {
         try {
-            return ResponseEntity.ok(trasformazioneService.getProdottiTrasformatore(idTrasformatore));
+            var lista = trasformazioneService.getProdottiTrasformatore(idTrasformatore);
+            return ResponseEntity.ok(lista.stream().map(ProdottoResponse :: fromEntity).toList());
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

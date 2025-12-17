@@ -1,15 +1,14 @@
 package org.example.controller;
 
 import org.example.dto.request.CreaEventoRequest;
-import org.example.model.Invito;
+import org.example.dto.response.EventoResponse;
+import org.example.dto.response.InvitoResponse;
 import org.example.service.AnimatoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-
 
 @RestController
 @RequestMapping("/api/animatore")
@@ -21,13 +20,14 @@ public class AnimatoreController {
     @PostMapping("/crea-evento")
     public ResponseEntity<?> creaEvento(@RequestBody CreaEventoRequest request) {
         try{
-            return ResponseEntity.ok(animatoreService.creaEvento(request));
+            var evento = animatoreService.creaEvento(request);
+            return ResponseEntity.ok(EventoResponse.fromEntity(evento));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Errore nella crazione dell'evento"+e.getMessage());
+            return ResponseEntity.badRequest().body("Errore nella crazione dell'evento: "+e.getMessage());
         }
     }
 
-    //pubblicazione(manda alla lista del curatore)
+    //manda in approvazione
     @PutMapping("/pubblica/{idEvento}")
     public ResponseEntity<String> richiediPubblicazione(@PathVariable Long idEvento, @RequestParam Long idVenditore){
         try{
@@ -53,9 +53,10 @@ public class AnimatoreController {
     @GetMapping("/inviti/{idEvento}")
     public ResponseEntity<?> getInviti(@PathVariable Long idEvento) {
         try {
-            // Ora List viene riconosciuto correttamente come java.util.List
-            List<Invito> inviti = animatoreService.getInvitiEvento(idEvento);
-            return ResponseEntity.ok(inviti);
+            var listaInviti = animatoreService.getInvitiEvento(idEvento);
+
+            List<InvitoResponse> response = listaInviti.stream().map(InvitoResponse :: fromEntity).toList();
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

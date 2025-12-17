@@ -1,9 +1,9 @@
 package org.example.controller;
 
-import org.example.model.Carrello;
-import org.example.model.Prodotto;
-import org.example.model.Ordine;
-import org.example.model.Evento;
+import org.example.dto.response.CarrelloResponse;
+import org.example.dto.response.EventoResponse;
+import org.example.dto.response.OrdineResponse;
+import org.example.dto.response.ProdottoResponse;
 import org.example.service.AcquirenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +20,9 @@ public class AcquirenteController {
 
     //visualizza il catalogo
     @GetMapping("/catalogo")
-    public ResponseEntity<List<Prodotto>> visualizzaCatalogo() {
-        return ResponseEntity.ok(acquirenteService.getCatalogoPubblico());
+    public ResponseEntity<List<ProdottoResponse>> visualizzaCatalogo() {
+       var prodotti = acquirenteService.getCatalogoPubblico();
+        return ResponseEntity.ok(prodotti.stream().map(ProdottoResponse::fromEntity).toList());
     }
 
     //------GESTIONE CARRELLO------
@@ -30,8 +31,8 @@ public class AcquirenteController {
     @GetMapping("/carrello/{idAcquirente}")
     public ResponseEntity<?> visualizzaCarrello(@PathVariable Long idAcquirente) {
         try {
-            Carrello carrello = acquirenteService.getCarrello(idAcquirente);
-            return ResponseEntity.ok(carrello);
+            var carrello = acquirenteService.getCarrello(idAcquirente);
+            return ResponseEntity.ok(CarrelloResponse.fromEntity(carrello));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -39,7 +40,7 @@ public class AcquirenteController {
 
     //aggiungi al carrello
     @PostMapping("/carrello/aggiungi")
-    public ResponseEntity<String> aggiungiAlCarrello(@RequestParam Long idAcquirente, @RequestParam Long idProdotto) {
+    public ResponseEntity<?> aggiungiAlCarrello(@RequestParam Long idAcquirente, @RequestParam Long idProdotto) {
         try{
             acquirenteService.aggiungiAlCarrello(idAcquirente,idProdotto);
             return ResponseEntity.ok("Prodotto aggiunto al carrello");
@@ -63,10 +64,10 @@ public class AcquirenteController {
 
     //effettua ordine
     @PostMapping("/ordine/effettua")
-    public ResponseEntity<String> effettuaOrdine(@RequestParam Long idAcquirente) {
+    public ResponseEntity<?> effettuaOrdine(@RequestParam Long idAcquirente) {
         try{
-            Ordine ordine = acquirenteService.effettuaOrdine(idAcquirente);
-            return ResponseEntity.ok("Ordine effettuato! ID: " + ordine.getId() + " - Totale: " + ordine.getTotale() + "€");
+            var ordine = acquirenteService.effettuaOrdine(idAcquirente);
+            return ResponseEntity.ok(OrdineResponse.fromEntity(ordine));
         }catch (Exception e){
             return  ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -87,8 +88,9 @@ public class AcquirenteController {
 
     //visualizza la lista degli eventi
     @GetMapping("/eventi")
-    public ResponseEntity<List<Evento>> visualizzaEventi() {
-        return ResponseEntity.ok(acquirenteService.getEventiDisponibili());
+    public ResponseEntity<List<EventoResponse>> visualizzaEventi() {
+        var eventi = acquirenteService.getEventiDisponibili();
+        return ResponseEntity.ok(eventi.stream().map(EventoResponse::fromEntity).toList());
     }
 
     //prenota evento
@@ -103,7 +105,7 @@ public class AcquirenteController {
     }
 
     //annulla la prenotazione all'evento
-    @DeleteMapping
+    @DeleteMapping("/evento/annulla-prenotazione/{idPrenotazione}")
     public ResponseEntity<String> annullaPrenotazione(@PathVariable Long idPrenotazione, @RequestParam Long idAcquirente) {
         try{
             acquirenteService.annullaPrenotazione(idPrenotazione, idAcquirente);

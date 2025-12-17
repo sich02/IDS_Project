@@ -35,7 +35,7 @@ public class ProduttoreController {
     @PutMapping("/pubblica/{idProdotto}")
     public ResponseEntity<String> richiediPubblicazione(@PathVariable Long idProdotto) {
         produttoreService.richiediPubblicazione(idProdotto);
-        return ResponseEntity.ok("Inviato al Curatore");
+        return ResponseEntity.ok("Prodotto inviato al Curatore per la revisione");
     }
 
 }
