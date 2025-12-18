@@ -1,6 +1,7 @@
 package org.example.controller;
 
 
+import org.example.dto.request.ModificaProdottoSingoloRequest;
 import org.example.dto.response.InvitoResponse;
 import org.example.dto.response.ProdottoResponse;
 import org.example.dto.request.CreaProcessoRequest;
@@ -39,6 +40,18 @@ public class TrasformatoreController {
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    //modifica prodotto già approvato
+    @PutMapping("/modifica-prodotto")
+    public ResponseEntity<?> modificaProdotto(@RequestBody ModificaProdottoSingoloRequest request) {
+       try {
+           var prodotto = trasformazioneService.modificaProdotto(request);
+           return ResponseEntity.ok("Prodotto modificato per la revisione");
+       }catch (Exception e){
+           return ResponseEntity.badRequest().body("Errore modifica: "+e.getMessage());
+       }
+
     }
 
     //lista prodotti trasformati

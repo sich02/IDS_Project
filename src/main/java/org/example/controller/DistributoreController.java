@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.dto.request.CreaPacchettoRequest;
+import org.example.dto.request.ModificaPacchettoRequest;
 import org.example.dto.response.InvitoResponse;
 import org.example.dto.response.ProdottoResponse;
 import org.example.service.VenditoreService;
@@ -38,6 +39,17 @@ public class DistributoreController {
             return ResponseEntity.ok().body(lista.toString());
         }catch(Exception e){
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    //modifica pacchetto già approvato
+    @PutMapping("/modifica-pacchetto")
+    public ResponseEntity<?> modificaPacchetto(@RequestBody ModificaPacchettoRequest request){
+        try{
+            var pacchetto = distributoreService.modificaPacchetto(request);
+            return ResponseEntity.ok().body(pacchetto);
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body("Errore modifica: " + e.getMessage());
         }
     }
 

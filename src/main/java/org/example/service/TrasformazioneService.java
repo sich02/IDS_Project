@@ -2,7 +2,9 @@ package org.example.service;
 
 import org.example.dto.request.CreaProcessoRequest;
 import org.example.dto.request.CertificazioneRequest;
+import org.example.dto.request.ModificaProdottoSingoloRequest;
 import org.example.model.*;
+import org.example.model.state.StatoBozza;
 import org.example.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ public class TrasformazioneService {
     @Autowired
     private ProdottoRepository prodottoRepo;
 
+    //crea il processo di trasformazione
     @Transactional
     public ProdottoSingolo creaProcessoTrasformazione(CreaProcessoRequest request) {
         Trasformatore trasformatore = (Trasformatore) utenteRepo.findById(request.idTrasformatore())
@@ -36,7 +39,6 @@ public class TrasformazioneService {
             }
         }
 
-        //crea output
         ProdottoSingolo outputProdotto = new ProdottoSingolo(request.nomeOutput(), request.descrizioneOutput(),
                                                              request.prezzoOutput(), trasformatore);
 
@@ -45,7 +47,7 @@ public class TrasformazioneService {
                 outputProdotto.aggiungiCertificazione(new Certificazione(TipoCertificazione.valueOf(c.nome()), c.enteRilascio(), c.descrizione()));
             }
         }
-        //registrazione del processo
+
         ProcessoTrasformazione processo = new ProcessoTrasformazione(
                 LocalDate.now(),
                 request.descrizioneProcesso(),
@@ -59,12 +61,44 @@ public class TrasformazioneService {
         return outputProdotto;
     }
 
+    //modifica prodotti
+    @Transactional
+    public ProdottoSingolo modificaProdotto(ModificaProdottoSingoloRequest request) {
+        Prodotto p = prodottoRepo.findById(request.idProdotto())
+                .orElseThrow(()-> new RuntimeException("Prodotto non trovato"));
+        if(!p.getVenditore().getId().equals(request.idVenditore())){
+            throw new RuntimeException("Non puoi modificare un prodotto non tuo");
+        }
+        if(!(p instanceof  ProdottoSingolo ps)){
+            throw new RuntimeException("Il prodotto non è modificabile");
+        }
+
+        ps.setNome(request.nome());
+        ps.setDescrizione(request.descrizione());
+        ps.setPrezzo(request.prezzo());
+
+        if(request.certificazioni() != null){
+            ps.getCertificazioni().clear();
+            for(CertificazioneRequest cReq : request.certificazioni()){
+                TipoCertificazione tipo = TipoCertificazione.valueOf(cReq.nome());
+                ps.aggiungiCertificazione(new Certificazione(tipo, cReq.enteRilascio(), cReq.descrizione()));
+            }
+        }
+
+        ps.setStato(new StatoBozza());
+
+        return prodottoRepo.save(ps);
+    }
+
+
+    //visualizza i propri prodotti
     public List<Prodotto> getProdottiTrasformatore(Long idTrasformatore) {
         Venditore trasformatore = (Venditore) utenteRepo.findById(idTrasformatore)
                 .orElseThrow(() -> new RuntimeException("Trasformatore non trovato"));
         return prodottoRepo.findByVenditore(trasformatore);
     }
 
+    //manda in approvazione al curatore
     @Transactional
     public void richiediPubblicazione(Long idProdotto) {
         Prodotto prodotto = prodottoRepo.findById(idProdotto)

@@ -3,7 +3,9 @@ package org.example.service;
 import jakarta.transaction.Transactional;
 import org.example.dto.request.CertificazioneRequest;
 import org.example.dto.request.CreaProdottoRequest;
+import org.example.dto.request.ModificaProdottoSingoloRequest;
 import org.example.model.*;
+import org.example.model.state.StatoBozza;
 import org.example.repository.ProdottoRepository;
 import org.example.repository.UtenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,19 +36,32 @@ public class ProduttoreService {
         return prodottoRepo.save(p);
     }
 
-    // Crea un pacchetto
+    //modifica un prodotto già caricato
     @Transactional
-    public Pacchetto creaPacchetto(Long idProduttore, String nome, String descrizione, List<Long> idsProdottiDaIncludere) {
-        Produttore produttore = (Produttore) utenteRepo.findById(idProduttore)
-                .orElseThrow(() -> new RuntimeException("Produttore non trovato"));
+    public ProdottoSingolo modificaProdotto(ModificaProdottoSingoloRequest request) {
+        Prodotto p = prodottoRepo.findById(request.idProdotto()).orElseThrow(() -> new RuntimeException("Prodotto non trovato"));
 
-        Pacchetto pacchetto = new Pacchetto(nome, descrizione, 0.0, produttore); // Il prezzo sarà calcolato o settato
+        if(!p.getVenditore().getId().equals(request.idVenditore())){
+            throw new RuntimeException("Non puoi modificare un prodotto che non ti appartiene");
+        }
+        if(!(p instanceof ProdottoSingolo ps)){
+            throw new RuntimeException("Il prodotto scelto non è un prodotto singolo");
+        }
 
-        List<Prodotto> prodotti = prodottoRepo.findAllById(idsProdottiDaIncludere);
-        if(prodotti.isEmpty()) throw new RuntimeException("Un pacchetto deve contenere almeno un prodotto");
+        ps.setNome(request.nome());
+        ps.setDescrizione(request.descrizione());
+        ps.setPrezzo(request.prezzo());
 
-        pacchetto.setProdotti(prodotti);
-        return prodottoRepo.save(pacchetto);
+        if(request.certificazioni() !=null){
+            ps.getCertificazioni().clear();
+            for (CertificazioneRequest cReq : request.certificazioni()) {
+                TipoCertificazione tipo = TipoCertificazione.valueOf(cReq.nome());
+                ps.aggiungiCertificazione(new Certificazione(tipo, cReq.enteRilascio(), cReq.descrizione()));
+            }
+        }
+
+        ps.setStato(new StatoBozza());
+        return prodottoRepo.save(ps);
     }
 
     //visualizza i prodotti
@@ -61,4 +76,5 @@ public class ProduttoreService {
         p.richiediApprovazione();
         prodottoRepo.save(p);
     }
+
 }

@@ -3,7 +3,9 @@ package org.example.service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.example.dto.request.CreaPacchettoRequest;
+import org.example.dto.request.ModificaPacchettoRequest;
 import org.example.model.*;
+import org.example.model.state.StatoBozza;
 import org.example.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,33 @@ public class DistributoreService {
 
         pacchetto.setProdotti(prodotti);
 
+        return prodottoRepo.save(pacchetto);
+    }
+
+    //modifica un pacchetto
+    @Transactional
+    public Pacchetto modificaPacchetto(ModificaPacchettoRequest request) {
+        Prodotto p = prodottoRepo.findById(request.idPacchetto())
+                .orElseThrow(()-> new RuntimeException("Prodotto non trovato"));
+
+        if(!p.getVenditore().getId().equals(request.idDistributore())) {
+            throw new RuntimeException("Non può essere modicato un pacchetto non proprio");
+        }
+        if(!(p instanceof Pacchetto pacchetto)) {
+            throw new RuntimeException("L'id non corrisponde a nessun pacchetto");
+        }
+
+        pacchetto.setNome(request.nome());
+        pacchetto.setDescrizione(request.descrizione());
+        pacchetto.setSconto(request.sconto());
+
+        if(request.idsProdottoDaIncludere() != null && !request.idsProdottoDaIncludere().isEmpty() ) {
+            List<Prodotto> nuoviProdotti = prodottoRepo.findAllById(request.idsProdottoDaIncludere());
+            if(nuoviProdotti.isEmpty()) throw new RuntimeException("Deve essere incluso almeno un prodotto valido");
+            pacchetto.setProdotti(nuoviProdotti);
+        }
+
+        pacchetto.setStato(new StatoBozza());
         return prodottoRepo.save(pacchetto);
     }
 

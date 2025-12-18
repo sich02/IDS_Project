@@ -1,7 +1,9 @@
 package org.example.controller;
 
 import org.example.dto.request.CreaProdottoRequest;
+import org.example.dto.request.ModificaProdottoSingoloRequest;
 import org.example.dto.response.InvitoResponse;
+import org.example.dto.response.ProdottoResponse;
 import org.example.service.ProduttoreService;
 import org.example.service.VenditoreService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,8 @@ public class ProduttoreController {
     private ProduttoreService produttoreService;
     @Autowired
     private VenditoreService venditoreService;
+
+    //
 
     //creo il prodotto
     @PostMapping("/crea-prodotto")
@@ -36,6 +40,16 @@ public class ProduttoreController {
         return ResponseEntity.ok(produttoreService.getIMieiProdotti(id));
     }
 
+    //modifica un prodotto già approvato
+    @PutMapping("/modifica-prodotto")
+    public ResponseEntity<?> modificaProdotto(@RequestBody ModificaProdottoSingoloRequest request) {
+        try{
+            var  prodotto = produttoreService.modificaProdotto(request);
+            return ResponseEntity.ok(ProdottoResponse.fromEntity(prodotto));
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body("Errore modifica: " + e.getMessage());
+        }
+    }
     //mando in approvazione
     @PutMapping("/pubblica/{idProdotto}")
     public ResponseEntity<String> richiediPubblicazione(@PathVariable Long idProdotto) {
