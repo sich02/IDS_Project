@@ -37,4 +37,15 @@ public class  AuthController {
         }
         return ResponseEntity.status(401).body("Credenziale non valide");
     }
+
+    //LOGOUT
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestParam(required = false) Long idUtente) {
+        try{
+            authService.logout(idUtente);
+            return ResponseEntity.ok("Logout effettuato con successo");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body("Errore generico durante il logout: " + e.getMessage());
+        }
+    }
 }

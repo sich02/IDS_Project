@@ -18,6 +18,7 @@ public class AuthService {
     @Autowired
     private UtenteFactory utenteFactory;
 
+    //registrazoine
     public Utente registraUtente(RegistrazioneRequest request) {
         if (utenteRepo.existsByEmail(request.email())) {
             throw new IllegalArgumentException("Account già esistente");
@@ -34,5 +35,12 @@ public class AuthService {
             return u;
         }
         return null;
+    }
+
+    //logout
+    public void logout (Long idUtente){
+        if (idUtente != null && !utenteRepo.existsById(idUtente)) {
+            throw new IllegalArgumentException("Utente non trovata");
+        }
     }
 }
