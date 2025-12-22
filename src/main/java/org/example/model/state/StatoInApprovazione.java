@@ -11,14 +11,11 @@ public class StatoInApprovazione implements StatoContenuto {
 
     @Override
     public void approva(Contenuto context) {
-        // Transizione valida: In Approvazione -> Pubblicato
         context.setStato(new StatoPubblicato());
     }
 
     @Override
     public void rifiuta(Contenuto context, String motivazione) {
-        // Transizione valida: In Approvazione -> Bozza (con motivazione)
-        // Qui potresti loggare la motivazione o salvarla in un campo 'note' di Contenuto
         System.out.println("Contenuto rifiutato per: " + motivazione);
         context.setStato(new StatoBozza());
     }

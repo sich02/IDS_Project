@@ -6,7 +6,6 @@ public class StatoBozza implements StatoContenuto {
 
     @Override
     public void inviaInRevisione(Contenuto context) {
-        // Transizione valida: Bozza -> In Approvazione
         context.setStato(new StatoInApprovazione());
     }
 

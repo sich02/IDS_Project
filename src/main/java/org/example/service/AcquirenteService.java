@@ -19,10 +19,6 @@ public class AcquirenteService {
     @Autowired private EventoRepository eventoRepo;
     @Autowired private PrenotazioneRepository prenotazioneRepo;
 
-    //visualizza il catalogo dei prodotti
-    public List<Prodotto> getCatalogoPubblico(){
-        return prodottoRepo.findByStatoNome("PUBLICATO");
-    }
 
     //viualizza la lista degli eventi
     public List<Evento> getEventiDisponibili(){

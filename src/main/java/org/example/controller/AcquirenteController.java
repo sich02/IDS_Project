@@ -18,13 +18,6 @@ public class AcquirenteController {
     @Autowired
     private AcquirenteService acquirenteService;
 
-    //visualizza il catalogo
-    @GetMapping("/catalogo")
-    public ResponseEntity<List<ProdottoResponse>> visualizzaCatalogo() {
-       var prodotti = acquirenteService.getCatalogoPubblico();
-        return ResponseEntity.ok(prodotti.stream().map(ProdottoResponse::fromEntity).toList());
-    }
-
     //------GESTIONE CARRELLO------
 
     //visualizza il carrello

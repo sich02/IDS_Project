@@ -16,8 +16,6 @@ public class StatoPubblicato implements StatoContenuto {
 
     @Override
     public void rifiuta(Contenuto context, String motivazione) {
-        // Opzionale: permettere di ritirare un contenuto pubblicato?
-        // Per ora lo blocchiamo come da specifiche base.
         throw new IllegalStateException("Errore: Impossibile rifiutare un contenuto già pubblicato. Va prima sospeso.");
     }
 
