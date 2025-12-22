@@ -14,6 +14,7 @@ public class Prenotazione {
     private Long id;
 
     private LocalDateTime dataPrenotazione;
+    private int numeroPosti;
 
     @ManyToOne
     private Acquirente acquirente;
@@ -21,9 +22,10 @@ public class Prenotazione {
     @ManyToOne
     private Evento evento;
 
-    public Prenotazione(Acquirente acquirente, Evento evento) {
+    public Prenotazione(Acquirente acquirente, Evento evento, int numeroPosti) {
         this.acquirente = acquirente;
         this.evento = evento;
+        this.numeroPosti = numeroPosti;
         this.dataPrenotazione = LocalDateTime.now();
     }
 }

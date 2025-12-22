@@ -20,7 +20,6 @@ public class AcquirenteService {
     @Autowired private PrenotazioneRepository prenotazioneRepo;
 
     //visualizza carrello, se vuoto ritorna un carrello vuoto
-
     public Carrello getCarrello(Long idAcquirente) {
         Acquirente acquirente = (Acquirente) utenteRepo.findById(idAcquirente)
                 .orElseThrow(() -> new RuntimeException("Acquirente non trovato"));
@@ -108,7 +107,12 @@ public class AcquirenteService {
 
     //prenota evento
     @Transactional
-    public void prenotaEvento(Long idAcquirente, Long idEvento) {
+    public void prenotaEvento(Long idAcquirente, Long idEvento, int numeroPosti) {
+
+        if(numeroPosti<=0){
+            throw new RuntimeException("devi prenotare almeno un posto ");
+        }
+
         Acquirente acquirente = (Acquirente) utenteRepo.findById(idAcquirente)
                 .orElseThrow(() -> new RuntimeException("Acquirente non trovato"));
 
@@ -119,7 +123,15 @@ public class AcquirenteService {
             throw new RuntimeException("Evento non disponibile");
         }
 
-        Prenotazione prenotazione = new Prenotazione(acquirente, evento);
+        if(evento.getMaxPartecipanti() < numeroPosti){
+            throw new RuntimeException("Non sono disponibili abbastanza posti per questo evento. Posti rimasti: "
+                    +evento.getMaxPartecipanti());
+        }
+
+        evento.setMaxPartecipanti(evento.getMaxPartecipanti()-numeroPosti);
+        eventoRepo.save(evento);
+
+        Prenotazione prenotazione = new Prenotazione(acquirente, evento, numeroPosti);
         prenotazioneRepo.save(prenotazione);
     }
 
@@ -132,6 +144,11 @@ public class AcquirenteService {
         if(!prenotazione.getAcquirente().getId().equals(idAcquirente)){
             throw new RuntimeException("Non puoi annullare una prenotazione non tua");
         }
+
+        Evento evento = prenotazione.getEvento();
+        evento.setMaxPartecipanti(evento.getMaxPartecipanti() + prenotazione.getNumeroPosti());
+        eventoRepo.save(evento);
+
         prenotazioneRepo.delete(prenotazione);
     }
 }

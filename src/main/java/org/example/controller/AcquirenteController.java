@@ -81,10 +81,12 @@ public class AcquirenteController {
 
     //prenota evento
     @PostMapping("/evento/prenota")
-    public ResponseEntity<String> prenotaEvento(@RequestParam Long idAcquirente, @RequestParam Long idEvento) {
+    public ResponseEntity<String> prenotaEvento(@RequestParam Long idAcquirente,
+                                                @RequestParam Long idEvento,
+                                                @RequestParam int numeroPosti) {
         try{
-            acquirenteService.prenotaEvento(idAcquirente, idEvento);
-            return ResponseEntity.ok("Prenotazione confermata");
+            acquirenteService.prenotaEvento(idAcquirente, idEvento, numeroPosti);
+            return ResponseEntity.ok("Prenotazione confermata per " + numeroPosti + " posti");
         } catch (Exception e) {
             return  ResponseEntity.badRequest().body(e.getMessage());
         }
