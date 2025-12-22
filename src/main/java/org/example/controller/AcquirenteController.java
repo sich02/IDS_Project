@@ -79,13 +79,6 @@ public class AcquirenteController {
 
     //------GESTIONE EVENTI LATO ACQUIRENTE------
 
-    //visualizza la lista degli eventi
-    @GetMapping("/eventi")
-    public ResponseEntity<List<EventoResponse>> visualizzaEventi() {
-        var eventi = acquirenteService.getEventiDisponibili();
-        return ResponseEntity.ok(eventi.stream().map(EventoResponse::fromEntity).toList());
-    }
-
     //prenota evento
     @PostMapping("/evento/prenota")
     public ResponseEntity<String> prenotaEvento(@RequestParam Long idAcquirente, @RequestParam Long idEvento) {

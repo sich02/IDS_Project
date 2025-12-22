@@ -19,14 +19,6 @@ public class AcquirenteService {
     @Autowired private EventoRepository eventoRepo;
     @Autowired private PrenotazioneRepository prenotazioneRepo;
 
-
-    //viualizza la lista degli eventi
-    public List<Evento> getEventiDisponibili(){
-        return eventoRepo.findAll().stream()
-                .filter(e ->"PUBBLICATO".equals(e.getStatoNome()))
-                .toList();
-    }
-
     //visualizza carrello, se vuoto ritorna un carrello vuoto
 
     public Carrello getCarrello(Long idAcquirente) {

@@ -1,10 +1,10 @@
 package org.example.controller;
 
+import org.example.dto.response.EventoResponse;
 import org.example.dto.response.ProdottoResponse;
 import org.example.dto.response.TracciabilitaResponse;
 import org.example.service.PublicService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,5 +33,14 @@ public class PublicController {
         } catch (Exception e) {
             return  ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    //visualizza la lista degli eventi disponibili
+    @GetMapping("/eventi")
+    public ResponseEntity<List<EventoResponse>> getEventi() {
+        var eventi = publicService.getEventiPubblici();
+        return  ResponseEntity.ok(eventi.stream()
+                .map(EventoResponse::fromEntity)
+                .toList());
     }
 }
