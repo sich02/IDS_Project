@@ -19,6 +19,9 @@ public class AcquirenteService {
     @Autowired private EventoRepository eventoRepo;
     @Autowired private PrenotazioneRepository prenotazioneRepo;
 
+
+    //----GESTIONE CARRELLO----
+
     //visualizza carrello, se vuoto ritorna un carrello vuoto
     public Carrello getCarrello(Long idAcquirente) {
         Acquirente acquirente = (Acquirente) utenteRepo.findById(idAcquirente)
@@ -69,6 +72,18 @@ public class AcquirenteService {
     }
 
 
+    //----GESTIONE ORDINE----
+
+
+    //visualizza lista ordini
+    public List<Ordine> getMieiOrdini(long idAcquirente) {
+        Acquirente acquirente = (Acquirente) utenteRepo.findById(idAcquirente)
+                .orElseThrow(() -> new RuntimeException("Acquirente non trovato"));
+
+        return ordineRepo.findByAcquirente(acquirente);
+    }
+
+
     //effettua ordine
     @Transactional
     public Ordine effettuaOrdine(Long idAcquirente) {
@@ -104,6 +119,18 @@ public class AcquirenteService {
         ordine.setStato("ANNULLATO");
         ordineRepo.save(ordine);
     }
+
+
+    //----GESTIONE EVENTO
+
+    //visualizza lista prenotazioni
+    public List<Prenotazione> getMieiPrenotazioni(Long  idAcquirente) {
+        Acquirente acquirente = (Acquirente) utenteRepo.findById(idAcquirente)
+                .orElseThrow(() -> new RuntimeException("Acquirente non trovato"));
+
+        return prenotazioneRepo.findByAcquirente(acquirente);
+    }
+
 
     //prenota evento
     @Transactional

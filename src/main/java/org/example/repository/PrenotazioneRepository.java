@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface PrenotazioneRepository extends JpaRepository<Prenotazione, Long> {
     List<Prenotazione> findByEvento(Evento evento);
+
+    List<Prenotazione> findByAcquirente(Acquirente acquirente);
 }

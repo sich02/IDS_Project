@@ -55,6 +55,20 @@ public class AcquirenteController {
 
     //------GESTIONE ORDINE------
 
+    //visualizza ordini
+    @PostMapping("/ordini/{idAcquirente}")
+    public ResponseEntity<List<OrdineResponse>> getMieiOrdini(@PathVariable Long idAcquirente){
+        try{
+            var ordini = acquirenteService.getMieiOrdini(idAcquirente);
+            return ResponseEntity.ok(ordini.stream()
+                    .map(OrdineResponse::fromEntity)
+                    .toList());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
     //effettua ordine
     @PostMapping("/ordine/effettua")
     public ResponseEntity<?> effettuaOrdine(@RequestParam Long idAcquirente) {
