@@ -1,9 +1,6 @@
 package org.example.controller;
 
-import org.example.dto.response.CarrelloResponse;
-import org.example.dto.response.EventoResponse;
-import org.example.dto.response.OrdineResponse;
-import org.example.dto.response.ProdottoResponse;
+import org.example.dto.response.*;
 import org.example.service.AcquirenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -114,6 +111,19 @@ public class AcquirenteController {
             return ResponseEntity.ok("Prenotazione annullata");
         }catch (Exception e){
             return  ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    //visualizza le prenotazioni
+    @GetMapping("/prenotazioni/{idAcquirente}")
+    public ResponseEntity<List<PrenotazioneResponse>> getMiePrenotazioni(@PathVariable Long idAcquirente) {
+        try{
+            var prenotazioni = acquirenteService.getMieiPrenotazioni(idAcquirente);
+            return ResponseEntity.ok(prenotazioni.stream()
+                    .map(PrenotazioneResponse::fromEntity)
+                    .toList());
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
         }
     }
 }
