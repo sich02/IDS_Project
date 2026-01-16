@@ -10,6 +10,8 @@ import org.example.service.VenditoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.example.repository.ProdottoRepository;
+import org.example.service.SocialService;
 
 import java.util.List;
 
@@ -20,6 +22,12 @@ public class TrasformatoreController {
     private TrasformazioneService trasformazioneService;
     @Autowired
     private VenditoreService venditoreService;
+
+    @Autowired
+    private ProdottoRepository prodottoRepo;
+
+    @Autowired
+    private SocialService socialService;
 
 
     //crea un prcesso di produzione
@@ -64,6 +72,29 @@ public class TrasformatoreController {
             return ResponseEntity.ok(lista.stream().map(ProdottoResponse :: fromEntity).toList());
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    //condivisione
+    @PostMapping("/condividi/{idProdotto}")
+    public ResponseEntity<String> condividiProdotto(@PathVariable Long idProdotto, @RequestParam Long idTrasformatore) {
+        try {
+            var prodotto = prodottoRepo.findById(idProdotto)
+                    .orElseThrow(() -> new RuntimeException("Prodotto non trovato"));
+
+            if (!prodotto.getVenditore().getId().equals(idTrasformatore)) {
+                return ResponseEntity.status(403).body("Non puoi condividere un prodotto non tuo.");
+            }
+
+            if (!"PUBBLICATO".equals(prodotto.getStatoNome())) {
+                return ResponseEntity.badRequest().body("Il prodotto deve essere pubblicato per essere condiviso.");
+            }
+
+            socialService.condividiContenuto(prodotto);
+
+            return ResponseEntity.ok("Prodotto trasformato condiviso con successo sui social.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

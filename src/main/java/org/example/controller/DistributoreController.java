@@ -3,7 +3,9 @@ package org.example.controller;
 import org.example.dto.request.CreaPacchettoRequest;
 import org.example.dto.request.ModificaPacchettoRequest;
 import org.example.dto.response.InvitoResponse;
+import org.example.repository.ProdottoRepository;
 import org.example.dto.response.ProdottoResponse;
+import org.example.service.SocialService;
 import org.example.service.VenditoreService;
 import org.example.service.DistributoreService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,10 @@ public class DistributoreController {
     private DistributoreService distributoreService;
     @Autowired
     private VenditoreService venditoreService;
+    @Autowired
+    private ProdottoRepository prodottoRepo;
+    @Autowired
+    private SocialService socialService;
 
     //crea un pacchetto
     @PostMapping("/crea-pacchetto")
@@ -60,6 +66,32 @@ public class DistributoreController {
             distributoreService.richiediPubblicazione(id);
             return ResponseEntity.ok().body("Pacchetto inviato in approvazione al curatore");
         }catch(Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    //condivisione
+    @PostMapping("/condividi/{idPacchetto}")
+    public ResponseEntity<String> condividiPacchetto(@PathVariable Long idPacchetto, @RequestParam Long idDistributore) {
+        try {
+            var pacchetto = prodottoRepo.findById(idPacchetto)
+                    .orElseThrow(() -> new RuntimeException("Pacchetto non trovato"));
+
+            // Verifica possesso
+            if (!pacchetto.getVenditore().getId().equals(idDistributore)) {
+                return ResponseEntity.status(403).body("Non puoi condividere un pacchetto non tuo.");
+            }
+
+            // Verifica stato
+            if (!"PUBBLICATO".equals(pacchetto.getStatoNome())) {
+                return ResponseEntity.badRequest().body("Il pacchetto deve essere pubblicato per essere condiviso.");
+            }
+
+            // Notifica gli Observer
+            socialService.condividiContenuto(pacchetto);
+
+            return ResponseEntity.ok("Pacchetto condiviso con successo sui social.");
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

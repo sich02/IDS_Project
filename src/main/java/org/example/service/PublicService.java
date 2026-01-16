@@ -38,7 +38,7 @@ public class PublicService {
     //eventi pubblicati
     public List<Evento> getEventiPubblici() {
         return eventoRepo.findAll().stream()
-                .filter(e -> "PUBBLICA".equals(e.getStatoNome()))
+                .filter(e -> "PUBBLICATO".equals(e.getStatoNome()))
                 .filter(e -> e.getDataEvento().toLocalDate()
                         .isAfter(LocalDate.now().minusDays(1))).toList();
     }
