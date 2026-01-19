@@ -59,6 +59,17 @@ public class DistributoreController {
         }
     }
 
+    //elimina pacchetto
+    @DeleteMapping("/elimina-pacchetto/{idPacchetto}")
+    public ResponseEntity<String> eliminaPacchetto(@PathVariable Long idPacchetto, @RequestParam Long idDistributore){
+        try{
+            distributoreService.eliminaPacchetto(idPacchetto, idDistributore);
+            return ResponseEntity.ok().body("elimina pacchetto");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body("Errore nell'eliminazione: " + e.getMessage());
+        }
+    }
+
     //invia in approvazione un pacchetto
     @PostMapping("/pubblica/{id}")
     public ResponseEntity<String> pubblica(@PathVariable Long id){

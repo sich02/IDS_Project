@@ -63,6 +63,21 @@ public class DistributoreService {
         return prodottoRepo.save(pacchetto);
     }
 
+    //elimina pacchetto
+    @Transactional
+    public void eliminaPacchetto(Long idPacchetto, Long idDistributore){
+        Prodotto p = prodottoRepo.findById(idPacchetto)
+                .orElseThrow(()-> new RuntimeException("Prodotto non trovato"));
+
+        if(!p.getVenditore().getId().equals(idDistributore)) {
+            throw new RuntimeException("Non puoi eliminare un pacchetto non tuo");
+        }
+        if (!(p instanceof Pacchetto)){
+            throw new RuntimeException("L'elemento non è un pacchetto");
+        }
+        prodottoRepo.delete(p);
+    }
+
     //visualizza lista dei pacchetti
     public List<Prodotto> getPacchettiDistributore(Long idDistributore){
         Distributore d = (Distributore) utenteRepo.findById(idDistributore)

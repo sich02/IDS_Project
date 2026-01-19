@@ -6,6 +6,8 @@ import org.example.model.*;
 import org.example.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.example.dto.request.ModificaEventoRequest;
+import org.example.model.state.StatoBozza;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -75,6 +77,44 @@ public class AnimatoreService {
         return prenotazioneRepo.findByEvento(evento).stream()
                 .map(Prenotazione :: getAcquirente)
                 .toList();
+    }
+
+    //modifica evento
+    @Transactional
+    public Evento modificaEvento(ModificaEventoRequest request){
+        Evento evento = eventoRepo.findById(request.idEvento())
+                .orElseThrow(()-> new RuntimeException("Evento non trovato"));
+
+        if (!evento.getOrganizzatore().getId().equals(request.idAnimatore())){
+            throw new RuntimeException("Non puoi modificare un evento non tuo");
+        }
+
+        evento.setNome(request.nome());
+        evento.setDescrizione(request.descrizione());
+        evento.setLuogo(request.luogo());
+        evento.setPrezzoBiglietto(request.prezzoBiglietto());
+        evento.setPrezzoBiglietto(request.prezzoBiglietto());
+
+        if (request.dataEvento()!=null){
+            evento.setDataEvento(LocalDateTime.parse(request.dataEvento(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        }
+
+        evento.setStato(new StatoBozza());
+
+        return eventoRepo.save(evento);
+    }
+
+    //elimina evento
+    @Transactional
+    public void eliminaEvento(Long idEvento, Long idAnimatore){
+        Evento evento = eventoRepo.findById(idEvento)
+                .orElseThrow(()-> new RuntimeException("Evento non trovato"));
+
+        if (!evento.getOrganizzatore().getId().equals(idAnimatore)){
+            throw new RuntimeException("Non puoi eliminare un evento non tuo");
+        }
+
+        eventoRepo.delete(evento);
     }
 
 }

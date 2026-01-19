@@ -90,6 +90,19 @@ public class TrasformazioneService {
         return prodottoRepo.save(ps);
     }
 
+    //elimina prodotto
+    @Transactional
+    public void eliminaProdotto(Long idProdotto, Long idTrasformatore){
+        Prodotto p = prodottoRepo.findById(idProdotto)
+                .orElseThrow(()-> new RuntimeException("Prodotto non trovato"));
+
+        if(!p.getVenditore().getId().equals(idTrasformatore)){
+            throw new RuntimeException("Non puoi eliminare un prodotto non tuo");
+        }
+
+        prodottoRepo.delete(p);
+    }
+
 
     //visualizza i propri prodotti
     public List<Prodotto> getProdottiTrasformatore(Long idTrasformatore) {

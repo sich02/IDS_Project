@@ -7,6 +7,7 @@ import org.example.service.AnimatoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.example.dto.request.ModificaEventoRequest;
 import org.example.dto.response.PartecipanteResponse;
 import org.example.repository.EventoRepository;
 import org.example.service.SocialService;
@@ -31,6 +32,28 @@ public class AnimatoreController {
             return ResponseEntity.ok(EventoResponse.fromEntity(evento));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Errore nella crazione dell'evento: "+e.getMessage());
+        }
+    }
+
+    //modifica l'evento
+    @PutMapping
+    public ResponseEntity<?> modificaEvento(@RequestBody ModificaEventoRequest request) {
+        try{
+            var evento = animatoreService.modificaEvento(request);
+            return ResponseEntity.ok(EventoResponse.fromEntity(evento));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body("Errore nella modificaEvento: "+e.getMessage());
+        }
+    }
+
+    //rimuovi evento
+    @PutMapping
+    public ResponseEntity<String> eliminaEvento(@PathVariable Long idEvento, @RequestParam Long idAnimatore) {
+        try{
+            animatoreService.eliminaEvento(idEvento, idAnimatore);
+            return ResponseEntity.ok("Evento modificado com sucesso");
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body("Errore nella eliminaEvento: "+e.getMessage());
         }
     }
 

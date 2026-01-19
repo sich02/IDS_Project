@@ -56,6 +56,18 @@ public class ProduttoreController {
             return ResponseEntity.badRequest().body("Errore modifica: " + e.getMessage());
         }
     }
+
+    //elimina prodotto
+    @DeleteMapping("/elimina-prodotto/{idProdotto}")
+    public ResponseEntity<String> eliminaProdotto(@PathVariable Long idProdotto, @RequestParam Long idProduttore) {
+        try{
+            produttoreService.eliminaProdotto(idProdotto, idProduttore);
+            return ResponseEntity.ok("Prodotto eliminato con successo");
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body("Errore nell'eliminazione: " + e.getMessage());
+        }
+    }
+
     //mando in approvazione
     @PutMapping("/pubblica/{idProdotto}")
     public ResponseEntity<String> richiediPubblicazione(@PathVariable Long idProdotto) {

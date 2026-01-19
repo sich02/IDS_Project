@@ -5,6 +5,7 @@ import org.example.dto.request.ModificaProdottoSingoloRequest;
 import org.example.dto.response.InvitoResponse;
 import org.example.dto.response.ProdottoResponse;
 import org.example.dto.request.CreaProcessoRequest;
+import org.example.model.Prodotto;
 import org.example.service.TrasformazioneService;
 import org.example.service.VenditoreService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,17 @@ public class TrasformatoreController {
            return ResponseEntity.badRequest().body("Errore modifica: "+e.getMessage());
        }
 
+    }
+
+    //elimina prodotto
+    @DeleteMapping("/elimina-prodotto/{idProdotto}")
+    public ResponseEntity<String> eliminaProdotto(@PathVariable Long idProdotto, @RequestBody Long idTrasformatore) {
+        try{
+            trasformazioneService.eliminaProdotto(idProdotto, idTrasformatore);
+            return ResponseEntity.ok("Prodotto eliminato per la revisione");
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     //lista prodotti trasformati

@@ -64,6 +64,18 @@ public class ProduttoreService {
         return prodottoRepo.save(ps);
     }
 
+    //elimina prodotto
+    @Transactional
+    public void  eliminaProdotto(Long idProdotto, Long idProduttore){
+        Prodotto p = prodottoRepo.findById(idProdotto)
+                .orElseThrow(() -> new RuntimeException("Prodotto non trovato"));
+
+        if(!p.getVenditore().getId().equals(idProduttore)){
+            throw new RuntimeException("Non puoi elimiare un prodotto non tuo");
+        }
+        prodottoRepo.delete(p);
+    }
+
     //visualizza i prodotti
     public List<Prodotto> getIMieiProdotti(Long idProduttore) {
         Produttore p = (Produttore) utenteRepo.findById(idProduttore).orElseThrow();
