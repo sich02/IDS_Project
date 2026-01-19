@@ -21,7 +21,7 @@ public record RegistrazioneRequest(
         String partitaIva,
         String ragioneSociale,
         String indirizzoSede,
-
-        String indirizzoSpedizione
+        String indirizzoSpedizione,
+        String coordinate
 ) {
 }

@@ -2,13 +2,16 @@ package org.example.service;
 
 import org.example.model.Evento;
 import org.example.model.Prodotto;
+import org.example.model.Venditore;
 import org.example.repository.ProdottoRepository;
 import org.example.repository.EventoRepository;
+import org.example.repository.UtenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PublicService {
@@ -17,6 +20,9 @@ public class PublicService {
 
     @Autowired
     private EventoRepository eventoRepo;
+
+    @Autowired
+    private UtenteRepository utenteRepo;
 
     //lista prodotti in stato pubblicato
     public List<Prodotto> getCatalogoCompleto() {
@@ -41,5 +47,14 @@ public class PublicService {
                 .filter(e -> "PUBBLICATO".equals(e.getStatoNome()))
                 .filter(e -> e.getDataEvento().toLocalDate()
                         .isAfter(LocalDate.now().minusDays(1))).toList();
+    }
+
+    //visualizza coordinate azinede
+    public List<Venditore> getAziendaFiliera(){
+        return utenteRepo.findAll()
+                .stream()
+                .filter(u -> u instanceof Venditore)
+                .map(u -> (Venditore)u)
+                .toList();
     }
 }

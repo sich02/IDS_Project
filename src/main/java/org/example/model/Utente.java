@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED) // Crea tabelle separate collegate per ID
-@Data // Lombok: Genera Getter, Setter, toString, equals in automatico
-@NoArgsConstructor // Lombok: Genera costruttore vuoto obbligatorio per JPA
+@Inheritance(strategy = InheritanceType.JOINED)
+@Data
+@NoArgsConstructor
 public abstract class Utente {
 
     @Id

@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.dto.response.AziendaResponse;
 import org.example.dto.response.EventoResponse;
 import org.example.dto.response.ProdottoResponse;
 import org.example.dto.response.TracciabilitaResponse;
@@ -42,5 +43,18 @@ public class PublicController {
         return  ResponseEntity.ok(eventi.stream()
                 .map(EventoResponse::fromEntity)
                 .toList());
+    }
+
+    //sistemi OSM
+    @GetMapping("/aziende")
+    public ResponseEntity<List<AziendaResponse>> getAziendeOSM() {
+        try{
+            var aziende = publicService.getAziendaFiliera();
+
+            return ResponseEntity.ok(aziende.stream()
+                    .map(AziendaResponse::fromEntity).toList());
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

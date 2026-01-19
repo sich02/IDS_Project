@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper=true)
 public class Distributore extends Venditore{
     public Distributore(String nome, String cognome, String email, String password,
-                        String partitaIva, String ragioneSociale, String indirizzoSede){
-        super(nome, cognome, email, password, RuoloUtente.DISTRIBUTORE, partitaIva, ragioneSociale, indirizzoSede);
+                        String partitaIva, String ragioneSociale, String indirizzoSede, String coordinate) {
+        super(nome, cognome, email, password, RuoloUtente.DISTRIBUTORE,
+                partitaIva, ragioneSociale, indirizzoSede,  coordinate);
     }
 }

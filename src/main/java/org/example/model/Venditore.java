@@ -15,12 +15,14 @@ public abstract class Venditore extends Utente {
     private String partitaIva;
     private String ragioneSociale;
     private String indirizzoSede;
+    private String coordinate;
 
     public Venditore(String nome, String cognome, String email, String password, RuoloUtente ruolo,
-                     String partitaIva, String ragioneSociale, String indirizzoSede) {
+                     String partitaIva, String ragioneSociale, String indirizzoSede, String coordinate) {
         super(nome, cognome, email, password, ruolo);
         this.partitaIva = partitaIva;
         this.ragioneSociale = ragioneSociale;
         this.indirizzoSede = indirizzoSede;
+        this.coordinate = coordinate;
     }
 }
