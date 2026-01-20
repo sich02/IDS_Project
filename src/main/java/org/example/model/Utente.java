@@ -25,11 +25,14 @@ public abstract class Utente {
     @Enumerated(EnumType.STRING) 
     private RuoloUtente ruolo;
 
+    private boolean accreditato = false;
+
     public Utente(String nome, String cognome, String email, String password, RuoloUtente ruolo) {
         this.nome = nome;
         this.cognome = cognome;
         this.email = email;
         this.password = password;
         this.ruolo = ruolo;
+        this.accreditato = false;
     }
 }

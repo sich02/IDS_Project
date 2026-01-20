@@ -25,6 +25,13 @@ public class AuthService {
         }
 
         Utente nuovoUtente = utenteFactory.creaUtente(request);
+
+        if (request.ruolo() == RuoloUtente.ACQUIRENTE){
+            nuovoUtente.setAccreditato(true);
+        }else {
+            nuovoUtente.setAccreditato(false);
+        }
+
         return utenteRepo.save(nuovoUtente);
     }
 
@@ -32,6 +39,9 @@ public class AuthService {
     public Utente login(LoginRequest request) {
         Utente u = utenteRepo.findByEmail(request.email()).orElse(null);
         if (u != null && u.getPassword().equals(request.password())) {
+            if (!u.isAccreditato()) {
+                throw new RuntimeException("Il tuo account non è ancora stato approvato");
+            }
             return u;
         }
         return null;
