@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/spi/gestore")
+@RequestMapping("/api/gestore")
 public class GestoreController {
     @Autowired
     private GestoreService gestoreService;

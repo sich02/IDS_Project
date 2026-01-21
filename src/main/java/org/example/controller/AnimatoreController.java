@@ -36,7 +36,7 @@ public class AnimatoreController {
     }
 
     //modifica l'evento
-    @PutMapping
+    @PutMapping("/modifica-evento")
     public ResponseEntity<?> modificaEvento(@RequestBody ModificaEventoRequest request) {
         try{
             var evento = animatoreService.modificaEvento(request);
@@ -47,7 +47,7 @@ public class AnimatoreController {
     }
 
     //rimuovi evento
-    @PutMapping
+    @PutMapping("/elimina-evento")
     public ResponseEntity<String> eliminaEvento(@PathVariable Long idEvento, @RequestParam Long idAnimatore) {
         try{
             animatoreService.eliminaEvento(idEvento, idAnimatore);

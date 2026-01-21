@@ -2,6 +2,7 @@ package org.example.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.example.model.RuoloUtente;
 public record RegistrazioneRequest(
@@ -15,7 +16,7 @@ public record RegistrazioneRequest(
         @NotBlank(message = "Campo obbligatorio")
         @Size(min = 6, message = "La password deve avere almeno 6 caratteri")
         String password,
-        @NotBlank(message = "Campo obbligatorio")
+        @NotNull(message = "Campo obbligatorio")
         RuoloUtente ruolo,
 
         String partitaIva,
