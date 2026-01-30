@@ -16,7 +16,9 @@ public class ProcessoTrasformazione{
     private Long id;
 
     private LocalDate dataTrasformazione;
-    private String descrizione;
+
+    @ManyToOne
+    private MetodoTrasformazione metodo;
 
     @ManyToOne
     private Trasformatore trasformatore;
@@ -27,12 +29,12 @@ public class ProcessoTrasformazione{
     @OneToMany
     private List<ProdottoSingolo> prodottiOutput;
 
-    public ProcessoTrasformazione(LocalDate dataTrasformazione, String descrizione,
+    public ProcessoTrasformazione(LocalDate dataTrasformazione,MetodoTrasformazione metodo,
                                   Trasformatore trasformatore,
                                   List<ProdottoSingolo> prodottiInput,
                                   List<ProdottoSingolo> prodottiOutput){
         this.dataTrasformazione = dataTrasformazione;
-        this.descrizione = descrizione;
+        this.metodo = metodo;
         this.trasformatore = trasformatore;
         this.prodottiInput = prodottiInput;
         this.prodottiOutput = prodottiOutput;

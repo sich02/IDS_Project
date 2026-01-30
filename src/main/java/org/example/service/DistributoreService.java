@@ -26,7 +26,12 @@ public class DistributoreService {
         Distributore distributore = (Distributore) utenteRepo.findById(request.idDistributore())
                 .orElseThrow(()-> new RuntimeException("Utente non trovato"));
 
-        Pacchetto pacchetto = new Pacchetto(request.nome(), request.descrizione(), 0.0, distributore);
+        Pacchetto pacchetto = new Pacchetto(
+                request.nome(),
+                request.descrizione(),
+                0.0,
+                request.quantita(),
+                distributore);
 
         List<Prodotto> prodotti = prodottoRepo.findAllById(request.idsProdottoDaIncludere());
         if(prodotti.isEmpty()) throw new RuntimeException("Il pacchetto deve contenere almeno un prodotto");

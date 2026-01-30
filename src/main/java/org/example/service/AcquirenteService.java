@@ -45,6 +45,10 @@ public class AcquirenteService {
             throw new RuntimeException("Prodotto non disponibile per l'acquisto.");
         }
 
+        if (prodotto.getQuantitaDisponibile() <= 0) {
+            throw new RuntimeException("Prodotto esaurito! Impossibile aggiungere al carrello.");
+        }
+
         Carrello carrello = carrelloRepo.findByAcquirente(acquirente)
                 .orElse(new Carrello(acquirente));
 

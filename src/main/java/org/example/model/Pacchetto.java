@@ -23,8 +23,8 @@ public class Pacchetto extends Prodotto {
     )
     private List<Prodotto> prodotti = new ArrayList<>();
 
-    public Pacchetto(String nome, String descrizione, double sconto, Venditore venditore) {
-        super(nome, descrizione, 0.0, 1, venditore);
+    public Pacchetto(String nome, String descrizione, double sconto, int quantita, Venditore venditore) {
+        super(nome, descrizione, 0.0, quantita, venditore);
         this.sconto = sconto;
     }
 

@@ -6,6 +6,7 @@ public record CreaPacchettoRequest(
         Long idDistributore,
         String nome,
         String descrizione,
+        int quantita,
         List<Long> idsProdottoDaIncludere
 ) {
 }

@@ -13,6 +13,7 @@ import org.example.service.VenditoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.example.dto.request.CreaMetodoRequest;
 
 import java.util.List;
 
@@ -31,14 +32,39 @@ public class TrasformatoreController {
     private SocialService socialService;
 
 
-    //crea un prcesso di produzione
-    @PostMapping("/crea-processo")
-    public ResponseEntity<?> creaProcesso(@RequestBody CreaProcessoRequest request) {
+    //visualizza elenco materie prime
+    @GetMapping("/materie-prime")
+    public ResponseEntity<List<ProdottoResponse>> getMateriePrime(){
         try{
-            var prodotto = trasformazioneService.creaProcessoTrasformazione(request);
-            return ResponseEntity.ok("Trasformazione completata. Nuovo prodotto creato: " +prodotto.getNome());
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Errore: "+e.getMessage());
+            var lista = trasformazioneService.getMateriePrimeDisponibili();
+            return ResponseEntity.ok(lista.stream()
+                    .map(ProdottoResponse::fromEntity)
+                    .toList());
+        }catch(Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    //crea un prcesso di trasformazione
+    @PostMapping("/crea-metodo")
+    public ResponseEntity<?> creaMetodo(@RequestBody CreaMetodoRequest request) {
+        try{
+            var metodo = trasformazioneService.creaNuovoMetodo(request);
+            return ResponseEntity.ok("Nuovo metodo: '" + metodo.getNome() + "' creato, in attesa di approvazione");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body("Errore: " + e.getMessage());
+        }
+
+    }
+
+    //crea prodotto trasformato
+    @PostMapping("/esegui-trasformazione")
+    public ResponseEntity<?> eseguiTrasformazione(@RequestBody CreaProcessoRequest request) {
+        try {
+            var prodotto = trasformazioneService.eseguiTrasformazione(request);
+            return ResponseEntity.ok("Trasformazione eseguita, prodotto creato");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body("Errore: " + e.getMessage());
         }
     }
 
