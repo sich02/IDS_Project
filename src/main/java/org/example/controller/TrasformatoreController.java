@@ -6,6 +6,8 @@ import org.example.dto.request.ModificaProdottoSingoloRequest;
 import org.example.dto.response.InvitoResponse;
 import org.example.dto.response.OrdineResponse;
 import org.example.dto.response.ProdottoResponse;
+import org.example.model.MetodoTrasformazione;
+import org.example.repository.MetodoTrasformazioneRepository;
 import org.example.repository.ProdottoRepository;
 import org.example.service.SocialService;
 import org.example.service.TrasformazioneService;
@@ -32,6 +34,46 @@ public class TrasformatoreController {
     private SocialService socialService;
 
 
+
+    //-----CREA METODO DI TRASFORMAZIONE
+
+    //crea un metodo di trasformazione
+    @PostMapping("/crea-metodo")
+    public ResponseEntity<?> creaMetodo(@RequestBody CreaMetodoRequest request) {
+        try{
+            var metodo = trasformazioneService.creaNuovoMetodo(request);
+            return ResponseEntity.ok("Nuovo metodo: '" + metodo.getNome() + "' creato, in attesa di approvazione");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body("Errore: " + e.getMessage());
+        }
+
+    }
+
+    //visualizza metodi in bozza
+    @GetMapping("/i-miei-metodi/{idTrasformatore}")
+    public ResponseEntity<List<MetodoTrasformazione>> getIMieiMetodi(@PathVariable Long idTrasformatore) {
+        try{
+            var lista = trasformazioneService.getMetodiByAutore(idTrasformatore);
+            return ResponseEntity.ok(lista);
+        }catch(Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    //invia in approvazione
+    @PutMapping("/pubblica-metodo/{idMetodo}")
+    public ResponseEntity<String> richiediPubblicazioneMetodo(@PathVariable Long idMetodo){
+        try{
+            trasformazioneService.richiediApprovazioneMetodo(idMetodo);
+            return ResponseEntity.ok("Metodo inviato al curatore per revisione ");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body("Errore: " + e.getMessage());
+        }
+    }
+
+
+    //-----CREA PRODOTTO TRASFORMATO-----
+
     //visualizza elenco materie prime
     @GetMapping("/materie-prime")
     public ResponseEntity<List<ProdottoResponse>> getMateriePrime(){
@@ -43,18 +85,6 @@ public class TrasformatoreController {
         }catch(Exception e){
             return ResponseEntity.badRequest().build();
         }
-    }
-
-    //crea un prcesso di trasformazione
-    @PostMapping("/crea-metodo")
-    public ResponseEntity<?> creaMetodo(@RequestBody CreaMetodoRequest request) {
-        try{
-            var metodo = trasformazioneService.creaNuovoMetodo(request);
-            return ResponseEntity.ok("Nuovo metodo: '" + metodo.getNome() + "' creato, in attesa di approvazione");
-        }catch(Exception e){
-            return ResponseEntity.badRequest().body("Errore: " + e.getMessage());
-        }
-
     }
 
     //crea prodotto trasformato

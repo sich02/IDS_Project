@@ -36,11 +36,35 @@ public class TrasformazioneService {
     //crea il processo di trasformazione
     @Transactional
     public MetodoTrasformazione creaNuovoMetodo(CreaMetodoRequest request) {
+
+        Trasformatore autore = (Trasformatore) utenteRepo.findById(request.idTrasformatore())
+                .orElseThrow(() -> new RuntimeException("Trasformatore (autore) non trovato"));
+
         MetodoTrasformazione metodo = new MetodoTrasformazione(
                 request.nome(),
-                request.descrizione()
+                request.descrizione(),
+                autore
         );
         return metodoRepo.save(metodo);
+    }
+
+    //visualizza i propri metodi
+    public List<MetodoTrasformazione> getMetodiByAutore(Long idTrasformatore) {
+        Trasformatore autore = (Trasformatore) utenteRepo.findById(idTrasformatore)
+                .orElseThrow(() -> new RuntimeException("Autore non trovato"));
+
+        return metodoRepo.findByAutore(autore);
+    }
+
+    //manda in approvazione il metodo
+    @Transactional
+    public void richiediApprovazioneMetodo(Long idMetodo){
+        MetodoTrasformazione metodo = metodoRepo.findById(idMetodo)
+                .orElseThrow(() -> new RuntimeException("Metodo non trovato"));
+
+        metodo.richiediApprovazione();
+
+        metodoRepo.save(metodo);
     }
 
     //crea prodotto trasformato
