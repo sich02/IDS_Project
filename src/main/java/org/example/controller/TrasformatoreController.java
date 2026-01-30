@@ -1,18 +1,18 @@
 package org.example.controller;
 
 
+import org.example.dto.request.CreaProcessoRequest;
 import org.example.dto.request.ModificaProdottoSingoloRequest;
 import org.example.dto.response.InvitoResponse;
+import org.example.dto.response.OrdineResponse;
 import org.example.dto.response.ProdottoResponse;
-import org.example.dto.request.CreaProcessoRequest;
-import org.example.model.Prodotto;
+import org.example.repository.ProdottoRepository;
+import org.example.service.SocialService;
 import org.example.service.TrasformazioneService;
 import org.example.service.VenditoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.example.repository.ProdottoRepository;
-import org.example.service.SocialService;
 
 import java.util.List;
 
@@ -133,4 +133,31 @@ public class TrasformatoreController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    //------GESTIONE INVITI RICEVUTI------
+
+    //visualizza ordini ricevuti
+    @GetMapping("/ordini/{idTrasformatore}")
+    public ResponseEntity<List<OrdineResponse>> getOrdiniRicevuti(@PathVariable Long idTrasformatore) {
+        try{
+            var ordini = venditoreService.getOrdiniRicevuti(idTrasformatore);
+            return ResponseEntity.ok(ordini.stream()
+                    .map(OrdineResponse::fromEntity)
+                    .toList());
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    //spedisci ordine
+    @PutMapping("/ordini/spedisci/{idOrdine}")
+    public ResponseEntity<String> spedisciOrdine(@PathVariable Long idOrdine, @RequestParam Long idTrasformatore) {
+        try{
+            venditoreService.spedisciOrdine(idOrdine, idTrasformatore);
+            return ResponseEntity.ok("Ordine spedito e magazzino aggiornato");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Errore: " + e.getMessage());
+        }
+    }
+
 }

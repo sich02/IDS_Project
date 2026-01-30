@@ -10,7 +10,7 @@ public record OrdineResponse(
         String dataCreazione,
         double totale,
         String stato,
-        List<String> nomiProdotti //è una lista semplificata dei prodotti
+        List<String> nomiProdotti
 ) {
    public static OrdineResponse fromEntity(Ordine o) {
        List<String> prodotti = o.getProdotti().stream().map(p->p.getNome() + " (" + p.getPrezzo() + "€)")

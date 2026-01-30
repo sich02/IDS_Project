@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.example.repository.ProdottoRepository;
 import org.example.service.SocialService;
+import org.example.dto.response.OrdineResponse;
 
 import java.util.List;
 
@@ -118,6 +119,31 @@ public class ProduttoreController {
             venditoreService.gestisciInvito(idInvito, accetta);
             return ResponseEntity.ok(accetta ? "Invito accettato" : "Invito rifiutato");
         }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    //------GESTIONE ORDINI------
+
+    //visualizza ordini in arrivo
+    @GetMapping("/ordini/{idProduttore}")
+    public ResponseEntity<List<OrdineResponse>> getOrdini(@PathVariable Long idProduttore) {
+        try{
+            var ordini = venditoreService.getOrdiniRicevuti(idProduttore);
+            return ResponseEntity.ok(ordini.stream()
+                    .map(OrdineResponse::fromEntity)
+                    .toList());
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/ordini/spedisci/{idOrdine}")
+    public ResponseEntity<String> spedisciOrdine(@PathVariable Long idOrdine, @RequestParam Long idProduttore) {
+        try {
+            venditoreService.spedisciOrdine(idOrdine, idProduttore);
+            return ResponseEntity.ok("Ordine segnato come SPEDITO");
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

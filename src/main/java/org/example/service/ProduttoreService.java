@@ -25,7 +25,12 @@ public class ProduttoreService {
         Produttore produttore = (Produttore) utenteRepo.findById(request.idProduttore())
                 .orElseThrow(() -> new RuntimeException("Produttore non trovato"));
 
-        ProdottoSingolo p = new ProdottoSingolo(request.nome(), request.descrizione(), request.prezzo(),  produttore);
+        ProdottoSingolo p = new ProdottoSingolo(
+                request.nome(),
+                request.descrizione(),
+                request.prezzo(),
+                request.quantita(),
+                produttore);
 
         if(request.certificazioni() !=null){
             for(CertificazioneRequest cReq : request.certificazioni()){

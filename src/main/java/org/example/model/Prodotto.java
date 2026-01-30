@@ -9,20 +9,22 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Inheritance(strategy = InheritanceType.JOINED) // Per ProdottoSingolo e Pacchetto
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Prodotto extends Contenuto {
 
     private double prezzo;
+    private int quantitaDisponibile;
 
-    // Associazione con chi lo vende (Produttore, Trasformatore o Distributore)
+
     @ManyToOne
     @JoinColumn(name = "venditore_id")
     private Venditore venditore;
 
-    // Costruttore
-    public Prodotto(String nome, String descrizione, double prezzo, Venditore venditore) {
-        super(nome, descrizione); // Passa i dati comuni al padre Contenuto
+
+    public Prodotto(String nome, String descrizione, double prezzo, int quantitaDisponibile, Venditore venditore) {
+        super(nome, descrizione);
         this.prezzo = prezzo;
+        this.quantitaDisponibile = quantitaDisponibile;
         this.venditore = venditore;
     }
 }

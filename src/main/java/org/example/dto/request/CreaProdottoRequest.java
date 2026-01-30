@@ -7,6 +7,7 @@ public record CreaProdottoRequest(
         String nome,
         String descrizione,
         double prezzo,
+        int quantita,
         List<CertificazioneRequest> certificazioni
 ) {
 }

@@ -3,11 +3,11 @@ package org.example.controller;
 import org.example.dto.request.CreaPacchettoRequest;
 import org.example.dto.request.ModificaPacchettoRequest;
 import org.example.dto.response.InvitoResponse;
+import org.example.dto.response.OrdineResponse;
 import org.example.repository.ProdottoRepository;
-import org.example.dto.response.ProdottoResponse;
+import org.example.service.DistributoreService;
 import org.example.service.SocialService;
 import org.example.service.VenditoreService;
-import org.example.service.DistributoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -128,6 +128,32 @@ public class DistributoreController {
             return ResponseEntity.ok(accetta ? "Invito accettato" : "Invito rifiutato");
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    //------GESTIONE ORDINI------
+
+    //visualizza ordini
+    @GetMapping("/ordini/{idDistributore}")
+    public ResponseEntity<List<OrdineResponse>> getOrdini(@PathVariable Long idDistributore) {
+        try{
+            var ordini = venditoreService.getOrdiniRicevuti(idDistributore);
+            return ResponseEntity.ok(ordini.stream()
+                    .map(OrdineResponse::fromEntity)
+                    .toList());
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    //spedisci ordine
+    @PutMapping("/ordini/spedisci/{idOrdine}")
+    public ResponseEntity<String> spedisciOrdine(@PathVariable Long idOrdine, @RequestParam Long idDistributore) {
+        try{
+            venditoreService.spedisciOrdine(idOrdine, idDistributore);
+            return ResponseEntity.ok().body("Ordine spedito e magazzino aggiornato");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Errore: " + e.getMessage());
         }
     }
 }
